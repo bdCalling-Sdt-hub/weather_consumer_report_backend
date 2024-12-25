@@ -18,7 +18,7 @@ export interface IJob {
   assignedTechnician: string;
   jobBidPrice: number;
   completedWorkVideo: string;
-  jobStatus: 'Pending' | 'Approved' | 'InProgress' | 'Archived' | 'Rejected';
+  jobStatus: 'Pending' | 'Approved' | 'Archived' | 'Rejected' | 'InProgress' | 'Completed';
   isAssigned: boolean;
   isDeleted: boolean;
   createdAt: Date;
