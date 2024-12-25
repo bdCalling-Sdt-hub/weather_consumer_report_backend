@@ -16,6 +16,7 @@ export interface IJob {
   jobDeadline: Date;
   bidTechnician: Types.ObjectId[];
   assignedTechnician: Types.ObjectId;
+  jobBidPrice: number;
   completedWorkVideo: string;
   jobStatus: 'Pending' | 'Approved' | 'Archived' | 'Rejected';
   isDeleted: boolean;

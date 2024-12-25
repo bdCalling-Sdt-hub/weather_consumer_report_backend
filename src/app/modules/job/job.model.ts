@@ -52,14 +52,17 @@ const jobSchema = new Schema<IJob>(
     bidTechnician: [
       {
         type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: [false, 'Bid technician is required'],
+        ref: 'BidJob',
       },
     ],
     assignedTechnician: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: [false, 'Assigned technician is required'],
+    },
+    jobBidPrice: {
+      type: Number,
+      required: [false, 'Job bid price is required'],
     },
     completedWorkVideo: {
       type: String,

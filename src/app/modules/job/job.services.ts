@@ -3,6 +3,7 @@ import ApiError from '../../../errors/ApiError';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 import { IJob } from './job.interface';
 import { Job } from './job.model';
+import { populate } from 'dotenv';
 
 const createJob = async (payload: Partial<IJob>): Promise<IJob> => {
   const result = await Job.create(payload);
@@ -25,6 +26,9 @@ const getAllJobs = async (
     },
     {
       path: 'bidTechnician',
+      populate:{
+        path:'technicianId'
+      }
     },
   ];
   const jobs = await Job.paginate(sanitizedFilters, options);
