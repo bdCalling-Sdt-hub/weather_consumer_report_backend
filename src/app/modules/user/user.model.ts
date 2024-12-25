@@ -5,17 +5,6 @@ import { TUser, UserModal } from './user.interface';
 import paginate from '../plugins/paginate';
 import { roles } from '../../middlewares/roles';
 
-const locationSchema = new Schema({
-  latitude: {
-    type: Number,
-    required: true,
-  },
-  longitude: {
-    type: Number,
-    required: true,
-  },
-});
-
 const userSchema = new Schema<TUser, UserModal>(
   {
     firstName: {
@@ -46,8 +35,8 @@ const userSchema = new Schema<TUser, UserModal>(
       required: [false, 'Date of birth is optional'],
     },
     location: {
-      type: locationSchema,
-      required: [false, 'Location is optional'],
+      type: String,
+      required: [true, 'Location is required'],
     },
     businessName: {
       type: String,

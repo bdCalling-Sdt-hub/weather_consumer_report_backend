@@ -4,6 +4,11 @@ import { JobController } from './job.controllers';
 
 const router = Router();
 
+//admin assign technician
+router
+  .route('/assign-technician')
+  .post(auth('admin'), JobController.assignTechnicianToJob);
+
 router
   .route('/')
   .post(auth('company'), JobController.createJob)

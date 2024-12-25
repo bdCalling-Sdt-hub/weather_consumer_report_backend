@@ -15,10 +15,11 @@ export interface IJob {
   jobDescription: string;
   jobDeadline: Date;
   bidTechnician: Types.ObjectId[];
-  assignedTechnician: Types.ObjectId;
+  assignedTechnician: string;
   jobBidPrice: number;
   completedWorkVideo: string;
-  jobStatus: 'Pending' | 'Approved' | 'Archived' | 'Rejected';
+  jobStatus: 'Pending' | 'Approved' | 'InProgress' | 'Archived' | 'Rejected';
+  isAssigned: boolean;
   isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;

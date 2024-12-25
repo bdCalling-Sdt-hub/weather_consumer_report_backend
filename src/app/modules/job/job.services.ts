@@ -3,8 +3,10 @@ import ApiError from '../../../errors/ApiError';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 import { IJob } from './job.interface';
 import { Job } from './job.model';
-import { populate } from 'dotenv';
 
+interface ISanitizedFilters {
+  [key: string]: string | number | boolean;
+}
 const createJob = async (payload: Partial<IJob>): Promise<IJob> => {
   const result = await Job.create(payload);
   return result;
@@ -14,9 +16,12 @@ const getAllJobs = async (
   filters: Partial<IJob>,
   options: PaginateOptions
 ): Promise<PaginateResult<IJob>> => {
-  const sanitizedFilters = {
+  const sanitizedFilters: ISanitizedFilters = {
     isDeleted: false,
   };
+  if (filters.jobStatus) {
+    sanitizedFilters.jobStatus = filters.jobStatus;
+  }
   options.populate = [
     {
       path: 'creatorId',
@@ -26,11 +31,12 @@ const getAllJobs = async (
     },
     {
       path: 'bidTechnician',
-      populate:{
-        path:'technicianId'
-      }
+      populate: {
+        path: 'technicianId',
+      },
     },
   ];
+  console.log(sanitizedFilters);
   const jobs = await Job.paginate(sanitizedFilters, options);
   return jobs;
 };
@@ -73,10 +79,37 @@ const deleteJob = async (jobId: string): Promise<IJob> => {
   return job;
 };
 
+//assign technician to job
+const assignTechnicianToJob = async (
+  jobId: string,
+  technicianId: string,
+  bidPrice: number
+): Promise<IJob> => {
+  const job = await Job.findOne({
+    _id: jobId,
+    isDeleted: false,
+  });
+  if (!job) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Job not found.');
+  }
+  if (job?.assignedTechnician) {
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      'This Job already assigned to technician.'
+    );
+  }
+  job.assignedTechnician = technicianId;
+  job.jobBidPrice = bidPrice;
+  job.isAssigned = true;
+  await job.save();
+  return job;
+};
+
 export const JobService = {
   createJob,
   getAllJobs,
   getSingleJob,
   updateJob,
   deleteJob,
+  assignTechnicianToJob,
 };

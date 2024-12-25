@@ -56,7 +56,7 @@ const jobSchema = new Schema<IJob>(
       },
     ],
     assignedTechnician: {
-      type: Schema.Types.ObjectId,
+      type: String,
       ref: 'User',
       required: [false, 'Assigned technician is required'],
     },
@@ -72,6 +72,10 @@ const jobSchema = new Schema<IJob>(
       type: String,
       enum: ['Pending', 'Approved', 'Archived', 'Rejected'],
       default: 'Pending',
+    },
+    isAssigned: {
+      type: Boolean,
+      default: false,
     },
     isDeleted: {
       type: Boolean,

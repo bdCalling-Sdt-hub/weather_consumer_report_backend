@@ -62,10 +62,24 @@ const deleteJob = catchAsync(async (req, res, next) => {
   });
 });
 
+const assignTechnicianToJob = catchAsync(async (req, res, next) => {
+  const { jobId, technicianId, bidPrice } = req.body;
+  const result = await JobService.assignTechnicianToJob(
+    jobId,
+    technicianId,
+    Number(bidPrice)
+  );
+  sendResponse(res, {
+    code: StatusCodes.OK,
+    message: 'Technician assigned to job successfully',
+    data: result,
+  });
+});
 export const JobController = {
   createJob,
   getAllJobs,
   getSingleJob,
   updateJob,
   deleteJob,
+  assignTechnicianToJob,
 };
