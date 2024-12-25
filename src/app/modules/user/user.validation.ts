@@ -22,10 +22,6 @@ const createUserValidationSchema = z.object({
       required_error: 'Phone number is required.',
       invalid_type_error: 'Phone number must be string',
     }),
-    location: z.string({
-      required_error: 'Location is required.',
-      invalid_type_error: 'Location must be string',
-    }),
     password: z
       .string({
         required_error: 'Password is required.',

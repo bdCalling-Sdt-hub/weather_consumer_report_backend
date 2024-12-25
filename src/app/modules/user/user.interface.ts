@@ -12,7 +12,10 @@ export type TUser = {
   phoneNumber: string;
   password: string;
   dateOfBirth: string;
-  location: string;
+  location: {
+    latitude: number;
+    longitude: number;
+  };
   image: string;
   businessName: string;
   homeAddress: string;
