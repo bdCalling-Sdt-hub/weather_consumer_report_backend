@@ -5,6 +5,7 @@ import { ContactRoutes } from '../app/modules/contact/contact.routes';
 import { OrderRoutes } from '../app/modules/orders/orders.routes';
 import { SettingsRoutes } from '../app/modules/settings/settings.routes';
 import { UserRoutes } from '../app/modules/user/user.route';
+import { JobRoutes } from '../app/modules/job/job.routes';
 const router = express.Router();
 
 const apiRoutes = [
@@ -19,6 +20,10 @@ const apiRoutes = [
   {
     path: '/user',
     route: UserRoutes,
+  },
+  {
+    path: '/jobs',
+    route: JobRoutes,
   },
   {
     path: '/order',
