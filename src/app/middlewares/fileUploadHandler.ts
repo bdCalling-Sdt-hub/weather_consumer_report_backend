@@ -43,6 +43,8 @@ export default function fileUploadHandler(UPLOADS_FOLDER: string) {
       'image/webp',
       'image/heic',
       'image/heif',
+      'video/mp4', 
+      'audio/mp3', 
     ];
 
     if (allowedTypes.includes(file.mimetype)) {

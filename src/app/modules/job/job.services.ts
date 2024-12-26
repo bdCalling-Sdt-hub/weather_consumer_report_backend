@@ -5,6 +5,7 @@ import { IJob } from './job.interface';
 import { Job } from './job.model';
 import { stripe } from '../../../utils/stripe';
 import { WalletService } from '../wallet/wallet.services';
+import { User } from '../user/user.model';
 
 interface ISanitizedFilters {
   [key: string]: string | number | boolean;
@@ -101,6 +102,7 @@ const assignTechnicianToJob = async (
   job.assignedTechnician = technicianId;
   job.jobBidPrice = bidPrice;
   job.isAssigned = true;
+  job.assignedTechnicianStatus = 'Pending';
   await job.save();
   // Notify company about assignment (mock notification logic here)
   console.log(
@@ -119,35 +121,59 @@ const approveJobByCompany = async (jobId: string): Promise<IJob> => {
   if (!job) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Job not found or not assigned.');
   }
-  // if (job.jobStatus !== 'Pending') {
-  //   throw new ApiError(
-  //     StatusCodes.BAD_REQUEST,
-  //     'Job is not awaiting approval.'
-  //   );
-  // }
 
-  // Create Stripe invoice
-  const invoiceItem = await stripe.invoiceItems.create({
-    customer: job.creatorId.toString(),
-    amount: job.jobBidPrice * 100,
-    currency: 'usd',
-    description: `Invoice for job ID: ${job._id}`,
-  });
+  if (job.jobStatus !== 'Pending') {
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      'Job is not awaiting approval.'
+    );
+  }
 
+  // Retrieve company (creator) details
+  const company = await User.findById(job.creatorId);
+  if (!company) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Company not found.');
+  }
+
+  // Check if the company has a Stripe customer ID
+  let stripeCustomerId = company.stripeCustomerId;
+  if (!stripeCustomerId) {
+    // Create a new Stripe customer
+    const customer = await stripe.customers.create({
+      name: company.fullName,
+      email: company.email,
+    });
+
+    // Save Stripe customer ID in the company record
+    stripeCustomerId = customer.id;
+    company.stripeCustomerId = stripeCustomerId;
+    await company.save();
+  }
+
+  // Create and finalize the invoice
   const invoice = await stripe.invoices.create({
-    customer: job.creatorId.toString(),
-    auto_advance: true,
+    customer: stripeCustomerId,
+    auto_advance: false, // Do not finalize automatically
     collection_method: 'send_invoice',
     days_until_due: 7,
   });
 
+  await stripe.invoiceItems.create({
+    customer: stripeCustomerId,
+    invoice: invoice.id,
+    amount: job.jobBidPrice * 100, // Amount in cents
+    currency: 'usd',
+    description: `Invoice for job ID: ${job._id}`,
+  });
+  // Finalize the invoice to generate the hosted_invoice_url
+  const finalizedInvoice = await stripe.invoices.finalizeInvoice(invoice.id);
+
   // Update job with invoice details
-  job.stripeInvoiceId = invoice?.id;
-  job.stripePaymentUrl = invoice?.hosted_invoice_url as string;
+  job.stripeInvoiceId = finalizedInvoice.id;
+  job.stripePaymentUrl = finalizedInvoice.hosted_invoice_url;
   job.jobStatus = 'InProgress';
   job.assignedTechnicianStatus = 'Accepted';
   await job.save();
-
   return job;
 };
 
@@ -209,6 +235,7 @@ const deliveredJobByTechnician = async (
     isDeleted: false,
     isAssigned: true,
   });
+
   if (!job) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Job not found or not assigned.');
   }
@@ -235,6 +262,7 @@ const completeJob = async (jobId: string): Promise<IJob> => {
 
   // Check payment status from Stripe
   const invoice = await stripe.invoices.retrieve(job.stripeInvoiceId!);
+  console.log(invoice);
   if (invoice.status !== 'paid') {
     throw new ApiError(
       StatusCodes.BAD_REQUEST,
@@ -244,6 +272,7 @@ const completeJob = async (jobId: string): Promise<IJob> => {
   // Mark the job as completed
   job.jobStatus = 'Completed';
   await job.save();
+  console.log(job);
 
   // Add payment to technician's wallet
   await WalletService.addMoney(

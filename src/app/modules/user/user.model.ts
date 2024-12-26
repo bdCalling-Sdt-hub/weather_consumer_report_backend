@@ -62,14 +62,15 @@ const userSchema = new Schema<TUser, UserModal>(
       type: String,
       required: [false, 'Work experience is optional'],
     },
-    amount: {
-      type: Number,
-      default: 0,
-    },
     image: {
       type: String,
       default: '/uploads/users/user.png',
       required: [true, 'User image is required'], // Custom error message
+    },
+    stripeCustomerId: {
+      type: String,
+      default: null,
+      required: [false, 'Stripe customer id is optional'],
     },
     role: {
       type: String,

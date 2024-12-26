@@ -82,10 +82,7 @@ const approveJobByCompany = catchAsync(async (req, res, next) => {
   sendResponse(res, {
     code: StatusCodes.OK,
     message: 'Job approved by company and invoice created.',
-    data: {
-      job: result,
-      paymentUrl: result.stripePaymentUrl,
-    },
+    data: result,
   });
 });
 
@@ -111,13 +108,11 @@ const rejectJobByCompany = catchAsync(async (req, res, next) => {
 
 const deliveredJobByTechnician = catchAsync(async (req, res, next) => {
   const { jobId } = req.body;
-  const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-  if (files && 'completedWorkVideo' in files) {
-    req.body.completedWorkVideo =
-      '/uploads/jobs/' + files.completedWorkVideo[0].filename;
+  const file = req.file;
+  if (file) {
+    req.body.completedWorkVideo = '/uploads/jobs/' + file.filename;
   }
-  const payload = pick(req.body, req.body);
-  const result = await JobService.deliveredJobByTechnician(jobId, payload);
+  const result = await JobService.deliveredJobByTechnician(jobId, req.body);
   sendResponse(res, {
     code: StatusCodes.OK,
     message: 'Job delivered successfully',

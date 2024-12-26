@@ -18,9 +18,9 @@ export type TUser = {
   homeAddress: string;
   workVehicle: string;
   workExperience: string;
-  amount: number;
   drivingLicenseFront: string;
   drivingLicenseBack: string;
+  stripeCustomerId?: string;
   status: TUserStatus;
   role: Role;
   isDeleted: boolean;

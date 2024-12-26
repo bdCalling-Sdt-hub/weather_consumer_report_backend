@@ -33,7 +33,7 @@ router
   );
 router
   .route('/complete-job')
-  .post(auth('technician'), JobController.completeJob);
+  .post(auth('company'), JobController.completeJob);
 
 router
   .route('/')
