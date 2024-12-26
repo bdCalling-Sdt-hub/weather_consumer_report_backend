@@ -5,13 +5,9 @@ const getAllPayments = async (
   filters: Partial<IPayment>,
   options: PaginateOptions
 ): Promise<PaginateResult<IPayment>> => {
-  const sanitizedFilters = {
-    ...filters,
-    paymentStatus: 'succeeded',
-  };
   options.sortBy = '-createdAt';
   options.populate = [{ path: 'userId' }];
-  const payments = await Payment.paginate(sanitizedFilters, options);
+  const payments = await Payment.paginate(filters, options);
   return payments;
 };
 

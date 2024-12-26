@@ -12,17 +12,6 @@ const getWallet = catchAsync(async (req, res, next) => {
     data: result,
   });
 });
-
-const createWallet = catchAsync(async (req, res, next) => {
-  const { userId } = req.body;
-  const result = await WalletService.createWallet(userId);
-  sendResponse(res, {
-    code: StatusCodes.CREATED,
-    message: 'Wallet created successfully.',
-    data: result,
-  });
-});
-
 const addMoney = catchAsync(async (req, res, next) => {
   const { userId } = req.body;
   const { amount } = req.body;
@@ -47,7 +36,6 @@ const withdrawMoney = catchAsync(async (req, res, next) => {
 
 export const WalletController = {
   getWallet,
-  createWallet,
   addMoney,
   withdrawMoney,
 };

@@ -9,24 +9,12 @@ const paymentSchema = new Schema<IPayment>(
       ref: 'User',
       required: true,
     },
-    sessionId: {
-      type: String,
-      required: true,
-    },
     totalAmount: {
       type: Number,
       required: true,
     },
     paymentHistory: {
       type: Object,
-      required: true,
-    },
-    paymentStatus: {
-      type: String,
-      required: true,
-    },
-    paymentType: {
-      type: String,
       required: true,
     },
   },

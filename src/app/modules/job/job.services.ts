@@ -256,13 +256,13 @@ const completeJob = async (jobId: string): Promise<IJob> => {
   if (!job) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Job not found.');
   }
-  if (job.jobStatus !== 'InProgress') {
+  if (job.jobStatus !== 'InProgress' && job.jobStatus !== 'Delivered') {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Job is not in progress.');
   }
 
   // Check payment status from Stripe
   const invoice = await stripe.invoices.retrieve(job.stripeInvoiceId!);
-  console.log(invoice);
+
   if (invoice.status !== 'paid') {
     throw new ApiError(
       StatusCodes.BAD_REQUEST,
@@ -272,12 +272,15 @@ const completeJob = async (jobId: string): Promise<IJob> => {
   // Mark the job as completed
   job.jobStatus = 'Completed';
   await job.save();
-  console.log(job);
+
+  const deduction = (job.jobBidPrice * 10) / 100;
+  // Calculate the remaining amount
+  const remainingAmount = job.jobBidPrice - deduction;
 
   // Add payment to technician's wallet
   await WalletService.addMoney(
     job.assignedTechnician as string,
-    job.jobBidPrice
+    remainingAmount
   );
   return job;
 };

@@ -4,11 +4,8 @@ import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 export interface IPayment {
   _id: string;
   userId: Types.ObjectId;
-  sessionId: string;
   totalAmount: number;
   paymentHistory: Record<string, any>;
-  paymentStatus: string;
-  paymentType: string;
   createdAt: Date;
   updatedAt: Date;
 }

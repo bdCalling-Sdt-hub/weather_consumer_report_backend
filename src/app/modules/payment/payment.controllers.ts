@@ -4,7 +4,6 @@ import sendResponse from '../../../shared/sendResponse';
 import { PaymentService } from './payment.service';
 import pick from '../../../shared/pick';
 
-
 const getAllPayments = catchAsync(async (req, res, next) => {
   const filters = pick(req.query, ['searchTerm', 'userName', 'productName']);
   const options = pick(req.query, ['sortBy', 'page', 'limit', 'populate']);

@@ -11,15 +11,6 @@ const getWalletByUserId = async (userId: string): Promise<IWallet | null> => {
   return wallet;
 };
 
-const createWallet = async (userId: string): Promise<IWallet> => {
-  const existingWallet = await Wallet.findOne({ userId });
-  if (existingWallet) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, 'Wallet already exists.');
-  }
-  const wallet = await Wallet.create({ userId, balance: 0, transactions: [] });
-  return wallet;
-};
-
 const addMoney = async (userId: string, amount: number): Promise<IWallet> => {
   if (amount <= 0) {
     throw new ApiError(
@@ -27,7 +18,7 @@ const addMoney = async (userId: string, amount: number): Promise<IWallet> => {
       'Amount must be greater than zero.'
     );
   }
-
+  // Use findOneAndUpdate with upsert to add money and create wallet if necessary
   const wallet = await Wallet.findOneAndUpdate(
     { userId },
     {
@@ -37,14 +28,13 @@ const addMoney = async (userId: string, amount: number): Promise<IWallet> => {
           amount,
           type: 'CREDIT',
           description: 'Money added to wallet',
+          createdAt: new Date(),
         },
       },
     },
-    { new: true }
+    { new: true, upsert: true } // `upsert` creates the wallet if it doesn't exist
   );
-  if (!wallet) {
-    throw new ApiError(StatusCodes.NOT_FOUND, 'Wallet not found.');
-  }
+
   return wallet;
 };
 
@@ -80,7 +70,6 @@ const withdrawMoney = async (
 
 export const WalletService = {
   getWalletByUserId,
-  createWallet,
   addMoney,
   withdrawMoney,
 };
