@@ -70,8 +70,21 @@ const jobSchema = new Schema<IJob>(
     },
     jobStatus: {
       type: String,
-      enum: ['Pending', 'Approved', 'Archived', 'Rejected'],
+      enum: ['Pending', 'InProgress', 'Review', 'Completed', 'Cancelled'],
       default: 'Pending',
+    },
+    assignedTechnicianStatus: {
+      type: String,
+      enum: ['Pending', 'Accepted', 'Archived', 'Rejected'],
+      default: 'Pending',
+    },
+    stripeInvoiceId: {
+      type: String,
+      required: [false, 'Stripe invoice ID is required'],
+    },
+    stripePaymentUrl: {
+      type: String,
+      required: [false, 'Stripe payment URL is required'],
     },
     isAssigned: {
       type: Boolean,

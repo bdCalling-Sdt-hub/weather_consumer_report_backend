@@ -62,6 +62,7 @@ const deleteJob = catchAsync(async (req, res, next) => {
   });
 });
 
+//assign technician
 const assignTechnicianToJob = catchAsync(async (req, res, next) => {
   const { jobId, technicianId, bidPrice } = req.body;
   const result = await JobService.assignTechnicianToJob(
@@ -75,6 +76,33 @@ const assignTechnicianToJob = catchAsync(async (req, res, next) => {
     data: result,
   });
 });
+
+//approve job
+const approveJobByCompany = catchAsync(async (req, res, next) => {
+  const { jobId } = req.body;
+  const result = await JobService.approveJobByCompany(jobId);
+  sendResponse(res, {
+    code: StatusCodes.OK,
+    message: 'Job approved by company and invoice created.',
+    data: {
+      job: result,
+      paymentUrl: result.stripePaymentUrl,
+    },
+  });
+});
+
+
+//complete job
+const completeJob = catchAsync(async (req, res, next) => {
+  const { jobId } = req.body;
+  const result = await JobService.completeJob(jobId);
+  sendResponse(res, {
+    code: StatusCodes.OK,
+    message: 'Job completed successfully',
+    data: result,
+  });
+});
+
 export const JobController = {
   createJob,
   getAllJobs,
@@ -82,4 +110,6 @@ export const JobController = {
   updateJob,
   deleteJob,
   assignTechnicianToJob,
+  approveJobByCompany,
+  completeJob,
 };

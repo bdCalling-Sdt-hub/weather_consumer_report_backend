@@ -18,9 +18,12 @@ export interface IJob {
   assignedTechnician: string;
   jobBidPrice: number;
   completedWorkVideo: string;
-  jobStatus: 'Pending' | 'Approved' | 'Archived' | 'Rejected' | 'InProgress' | 'Completed';
+  jobStatus: 'Pending' | 'InProgress' | 'Review' | 'Completed' | 'Cancelled';
+  assignedTechnicianStatus: 'Pending' | 'Accepted' | 'Archived' | 'Rejected';
   isAssigned: boolean;
   isDeleted: boolean;
+  stripeInvoiceId?: string;
+  stripePaymentUrl?: string;
   createdAt: Date;
   updatedAt: Date;
 }
