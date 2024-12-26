@@ -16,13 +16,24 @@ router
   .post(auth('company'), JobController.approveJobByCompany);
 
 router
-  .route('/complete-job')
+  .route('/archive-job')
+  .post(auth('company'), JobController.archivedJobByCompany);
+
+router
+  .route('/reject-job')
+  .post(auth('company'), JobController.rejectJobByCompany);
+
+router
+  .route('/deliver-job')
   .post(
     auth('technician'),
-    upload.single('workVideo'),
+    upload.single('completedWorkVideo'),
     convertHeicToPngMiddleware(UPLOADS_FOLDER),
-    JobController.completeJob
+    JobController.deliveredJobByTechnician
   );
+router
+  .route('/complete-job')
+  .post(auth('technician'), JobController.completeJob);
 
 router
   .route('/')

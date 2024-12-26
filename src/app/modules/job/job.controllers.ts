@@ -62,7 +62,6 @@ const deleteJob = catchAsync(async (req, res, next) => {
   });
 });
 
-//assign technician
 const assignTechnicianToJob = catchAsync(async (req, res, next) => {
   const { jobId, technicianId, bidPrice } = req.body;
   const result = await JobService.assignTechnicianToJob(
@@ -77,7 +76,6 @@ const assignTechnicianToJob = catchAsync(async (req, res, next) => {
   });
 });
 
-//approve job
 const approveJobByCompany = catchAsync(async (req, res, next) => {
   const { jobId } = req.body;
   const result = await JobService.approveJobByCompany(jobId);
@@ -91,8 +89,42 @@ const approveJobByCompany = catchAsync(async (req, res, next) => {
   });
 });
 
+const archivedJobByCompany = catchAsync(async (req, res, next) => {
+  const { jobId } = req.body;
+  const result = await JobService.archivedJobByCompany(jobId);
+  sendResponse(res, {
+    code: StatusCodes.OK,
+    message: 'Job archived successfully',
+    data: result,
+  });
+});
 
-//complete job
+const rejectJobByCompany = catchAsync(async (req, res, next) => {
+  const { jobId } = req.body;
+  const result = await JobService.rejectJobByCompany(jobId);
+  sendResponse(res, {
+    code: StatusCodes.OK,
+    message: 'Job rejected successfully',
+    data: result,
+  });
+});
+
+const deliveredJobByTechnician = catchAsync(async (req, res, next) => {
+  const { jobId } = req.body;
+  const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+  if (files && 'completedWorkVideo' in files) {
+    req.body.completedWorkVideo =
+      '/uploads/jobs/' + files.completedWorkVideo[0].filename;
+  }
+  const payload = pick(req.body, req.body);
+  const result = await JobService.deliveredJobByTechnician(jobId, payload);
+  sendResponse(res, {
+    code: StatusCodes.OK,
+    message: 'Job delivered successfully',
+    data: result,
+  });
+});
+
 const completeJob = catchAsync(async (req, res, next) => {
   const { jobId } = req.body;
   const result = await JobService.completeJob(jobId);
@@ -111,5 +143,8 @@ export const JobController = {
   deleteJob,
   assignTechnicianToJob,
   approveJobByCompany,
+  archivedJobByCompany,
+  rejectJobByCompany,
+  deliveredJobByTechnician,
   completeJob,
 };

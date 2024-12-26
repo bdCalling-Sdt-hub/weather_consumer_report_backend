@@ -119,12 +119,13 @@ const approveJobByCompany = async (jobId: string): Promise<IJob> => {
   if (!job) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Job not found or not assigned.');
   }
-  if (job.jobStatus !== 'Pending') {
-    throw new ApiError(
-      StatusCodes.BAD_REQUEST,
-      'Job is not awaiting approval.'
-    );
-  }
+  // if (job.jobStatus !== 'Pending') {
+  //   throw new ApiError(
+  //     StatusCodes.BAD_REQUEST,
+  //     'Job is not awaiting approval.'
+  //   );
+  // }
+
   // Create Stripe invoice
   const invoiceItem = await stripe.invoiceItems.create({
     customer: job.creatorId.toString(),
@@ -147,6 +148,76 @@ const approveJobByCompany = async (jobId: string): Promise<IJob> => {
   job.assignedTechnicianStatus = 'Accepted';
   await job.save();
 
+  return job;
+};
+
+const archivedJobByCompany = async (jobId: string): Promise<IJob> => {
+  const job = await Job.findOne({
+    _id: jobId,
+    isDeleted: false,
+    isAssigned: true,
+  });
+  if (!job) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Job not found or not assigned.');
+  }
+  if (
+    job.assignedTechnicianStatus !== 'Pending' &&
+    job.assignedTechnicianStatus !== 'Accepted'
+  ) {
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      'Job is not awaiting approval.'
+    );
+  }
+
+  job.assignedTechnicianStatus = 'Archived';
+  await job.save();
+  return job;
+};
+const rejectJobByCompany = async (jobId: string): Promise<IJob> => {
+  const job = await Job.findOne({
+    _id: jobId,
+    isDeleted: false,
+    isAssigned: true,
+  });
+  if (!job) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Job not found or not assigned.');
+  }
+  if (
+    job.assignedTechnicianStatus !== 'Pending' &&
+    job.assignedTechnicianStatus !== 'Accepted'
+  ) {
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      'Job is not awaiting approval.'
+    );
+  }
+
+  job.assignedTechnicianStatus = 'Rejected';
+  job.assignedTechnician = null;
+  job.isAssigned = false;
+  await job.save();
+  return job;
+};
+
+const deliveredJobByTechnician = async (
+  jobId: string,
+  payload: Partial<IJob>
+): Promise<IJob> => {
+  const job = await Job.findOne({
+    _id: jobId,
+    isDeleted: false,
+    isAssigned: true,
+  });
+  if (!job) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Job not found or not assigned.');
+  }
+  if (job.assignedTechnicianStatus !== 'Accepted') {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Job is not accepted yet.');
+  }
+  job.jobStatus = 'Delivered';
+  job.completedWorkVideo = payload.completedWorkVideo as string;
+  await job.save();
   return job;
 };
 
@@ -175,7 +246,10 @@ const completeJob = async (jobId: string): Promise<IJob> => {
   await job.save();
 
   // Add payment to technician's wallet
-  await WalletService.addMoney(job.assignedTechnician, job.jobBidPrice);
+  await WalletService.addMoney(
+    job.assignedTechnician as string,
+    job.jobBidPrice
+  );
   return job;
 };
 
@@ -186,6 +260,9 @@ export const JobService = {
   updateJob,
   deleteJob,
   assignTechnicianToJob,
+  archivedJobByCompany,
+  rejectJobByCompany,
+  deliveredJobByTechnician,
   approveJobByCompany,
   completeJob,
 };

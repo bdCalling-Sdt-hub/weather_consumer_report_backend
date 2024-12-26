@@ -15,15 +15,21 @@ export interface IJob {
   jobDescription: string;
   jobDeadline: Date;
   bidTechnician: Types.ObjectId[];
-  assignedTechnician: string;
+  assignedTechnician: string | null;
   jobBidPrice: number;
-  completedWorkVideo: string;
-  jobStatus: 'Pending' | 'InProgress' | 'Review' | 'Completed' | 'Cancelled';
+  completedWorkVideo: string ;
+  jobStatus:
+    | 'Pending'
+    | 'InProgress'
+    | 'Delivered'
+    | 'Review'
+    | 'Completed'
+    | 'Cancelled';
   assignedTechnicianStatus: 'Pending' | 'Accepted' | 'Archived' | 'Rejected';
   isAssigned: boolean;
   isDeleted: boolean;
-  stripeInvoiceId?: string;
-  stripePaymentUrl?: string;
+  stripeInvoiceId?: string | null;
+  stripePaymentUrl?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
