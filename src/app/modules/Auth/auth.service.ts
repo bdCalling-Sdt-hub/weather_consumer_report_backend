@@ -31,8 +31,7 @@ const loginIntoDB = async (payload: ILogin) => {
   const user = await User.findOne({
     email: payload.email,
     isEmailVerified: true,
-  }).select('+password')
-
+  }).select('+password');
   if (!user) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'User not found.');
   }
@@ -65,7 +64,6 @@ const loginIntoDB = async (payload: ILogin) => {
     config.jwt.accessSecret as Secret,
     config.jwt.refreshExpirationTime
   );
-
   return {
     user: userWithoutPassword,
     tokens: {
@@ -188,7 +186,7 @@ const changePassword = async (userId: string, payload: IChangePassword) => {
 };
 
 const refreshToken = async (refreshToken: string) => {
-  console.log(refreshToken)
+  console.log(refreshToken);
   const decoded = jwtHelper.verifyToken(
     refreshToken,
     config.jwt.accessSecret as Secret
@@ -222,5 +220,5 @@ export const AuthService = {
   forgotPassword,
   resetPassword,
   changePassword,
-  refreshToken
+  refreshToken,
 };

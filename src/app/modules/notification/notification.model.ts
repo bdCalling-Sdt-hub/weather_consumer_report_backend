@@ -13,17 +13,23 @@ const notificationModel = new Schema<INotification>(
       type: String,
       required: [true, 'Message is required'],
     },
-    userId: {
+    receiverId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
-      required: [true, 'User is required'],
+      required: [false, 'User is required'],
     },
     role: {
       type: String,
       enum: roles,
       required: true,
     },
-    read: { type: Boolean, default: false },
+    image: {
+      type: String,
+    },
+    linkId: {
+      type: String,
+    },
+    viewStatus: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

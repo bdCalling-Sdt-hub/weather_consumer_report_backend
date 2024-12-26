@@ -1,17 +1,22 @@
 import { Model, Types } from 'mongoose';
-import { Role } from '../../middlewares/roles';
+import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 
 export interface INotification {
-  _id: Types.ObjectId;
+  _id?: Types.ObjectId;
+  receiverId?: Types.ObjectId | string;
   title: string;
-  message: string;
-  userId: Types.ObjectId;
-  role: Role;
-  read: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  message?: string;
+  image?: object;
+  linkId?: Types.ObjectId | string;
+  role: 'admin' | 'technician' | 'company';
+  viewStatus?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface INotificationModal extends Model<INotification> {
-    paginate: (query: any, options: any) => Promise<any>;
+  paginate: (
+    query: Record<string, any>,
+    options: PaginateOptions
+  ) => Promise<PaginateResult<INotification>>;
 }

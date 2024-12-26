@@ -6,12 +6,22 @@ import { Job } from './job.model';
 import { stripe } from '../../../utils/stripe';
 import { WalletService } from '../wallet/wallet.services';
 import { User } from '../user/user.model';
+import { NotificationService } from '../notification/notification.services';
+import { INotification } from '../notification/notification.interface';
 
 interface ISanitizedFilters {
   [key: string]: string | number | boolean;
 }
 const createJob = async (payload: Partial<IJob>): Promise<IJob> => {
   const result = await Job.create(payload);
+  const eventName = "admin-notification";
+  const notification : INotification = {
+    title: "New Job Created",
+    message: "A new job has been created.",
+    role: "admin",
+    linkId: result._id,
+  }
+  await NotificationService.addCustomNotification(eventName, notification);
   return result;
 };
 

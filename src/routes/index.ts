@@ -7,6 +7,7 @@ import { SettingsRoutes } from '../app/modules/settings/settings.routes';
 import { UserRoutes } from '../app/modules/user/user.route';
 import { JobRoutes } from '../app/modules/job/job.routes';
 import { BidJobRoutes } from '../app/modules/bidJob/bidJob.routes';
+import { NotificationRoutes } from '../app/modules/notification/notification.routes';
 const router = express.Router();
 
 const apiRoutes = [
@@ -37,6 +38,10 @@ const apiRoutes = [
   {
     path: '/settings',
     route: SettingsRoutes,
+  },
+  {
+    path: '/notifications',
+    route: NotificationRoutes,
   },
   {
     path: '/contact',
