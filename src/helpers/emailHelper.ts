@@ -44,22 +44,27 @@ const sendEmail = async (values: ISendEmail) => {
 
 // Generate email body
 const generateEmailBody = (otp: string, type: string) => {
+  const title = type === 'Password Reset' ? 'Password Reset Code' : 'Welcome to Qeyys';
+  const introText =
+    type === 'Password Reset'
+      ? 'We received a request to reset your password. Use the code below to reset your password.'
+      : 'Thank you for joining Qeyys! Your account is almost ready. Use the code below to verify your account.';
   return `
     <body style="background-color: #f3f4f6; font-family: 'Arial', sans-serif; color: #333; margin: 0; padding: 0;">
-      <div style="width: 100%; padding: 2rem; background-color: #f3f4f6;">
+      <div style="width: 80%; margin:0 auto; padding: 1rem; background-color: #f3f4f6;">
         <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 2rem; border-radius: 0.75rem; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); text-align: center;">
           <!-- Logo -->
-          <img src="https://i.postimg.cc/9fRd0Qn4/Ellipse-1102.png" alt="Designflow Logo" style="max-width: 90px; margin-bottom: 20px; border-radius: 50%;">
+          <img src="https://i.postimg.cc/SsVJt2ys/locksimt.gif" alt="Qeyys Logo" style="max-width: 120px; margin-bottom: 20px; border-radius: 10px;">
 
           <!-- Header -->
-          <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem; color: #1f2937; font-family: 'Helvetica Neue', sans-serif;">Welcome to Designflow</h1>
+          <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem; color: #1f2937; font-family: 'Helvetica Neue', sans-serif;">${title}</h1>
 
           <!-- Introductory Text -->
-          <p style="color: #4b5563; margin-bottom: 1.5rem; font-size: 1rem; line-height: 1.5;">Thank you for joining Designflow! Your account is almost ready. Please use the code below to verify your account.</p>
+          <p style="color: #4b5563; margin-bottom: 1.5rem; font-size: 1rem; line-height: 1.5;">${introText}</p>
 
           <!-- OTP Code Box -->
-          <div style="background: linear-gradient(135deg, #1CD64F, #A4E786); color: #ffffff; padding: 1rem; border-radius: 0.5rem; font-size: 2.5rem; font-weight: 800; letter-spacing: 0.1rem; margin-bottom: 1.5rem; text-transform: uppercase;">
-            ${otp}
+          <div style="width: 50%; margin: 0 auto; background-color: #DB2424; color: #ffffff; pading: 0.5rem ; border-radius: 0.5rem; text-align: center;">
+           <p style="font-size: 2rem; font-weight: 800; letter-spacing: 0.1rem; margin-bottom: 1.5rem; text-transform: uppercase;">${otp}</p>
           </div>
 
           <!-- Verification Instructions -->
@@ -67,16 +72,11 @@ const generateEmailBody = (otp: string, type: string) => {
 
           <!-- Footer Text -->
           <p style="color: #6b7280; font-size: 0.875rem; margin-top: 1.5rem;">If you did not request this verification, please ignore this email.</p>
-          <p style="color: #6b7280; font-size: 0.875rem;">Thanks, The Designflow Team</p>
+          <p style="color: #6b7280; font-size: 0.875rem;">Thanks, The Qeyys Team</p>
 
           <!-- Expiry Information -->
           <p style="color: #ff0000; font-size: 0.85rem; margin-top: 1.5rem;">This code expires in <span id="timer">3:00</span> minutes.</p>
 
-          <!-- Additional Footer with Contact Info -->
-          <div style="margin-top: 2rem; font-size: 0.875rem; color: #b0b0b0;">
-            <p>Designflow, Inc. | 1234 Design Ave, Suite 101 | City, Country</p>
-            <p style="margin-top: 0.5rem;">If you are having trouble, contact support at <a href="mailto:support@designflow.com" style="color: #1CD64F; text-decoration: none;">support@designflow.com</a></p>
-          </div>
         </div>
       </div>
     </body>
@@ -85,14 +85,14 @@ const generateEmailBody = (otp: string, type: string) => {
 
 // Function to send email verification
 const sendEmailVerification = async (to: string, otp: string) => {
-  const subject = 'Designflow - Account Verification Code';
+  const subject = 'Qeyys - Account Verification Code';
   const html = generateEmailBody(otp, 'Account Verification');
   await sendEmail({ to, subject, html });
 };
 
 // Function to send reset password email
 const sendResetPasswordEmail = async (to: string, otp: string) => {
-  const subject = 'Designflow - Password Reset Code';
+  const subject = 'Qeyys - Password Reset Code';
   const html = generateEmailBody(otp, 'Password Reset');
   await sendEmail({ to, subject, html });
 };

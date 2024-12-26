@@ -21,6 +21,7 @@ const getAllJobs = async (
 ): Promise<PaginateResult<IJob>> => {
   const sanitizedFilters: ISanitizedFilters = {
     isDeleted: false,
+    isAssigned: false,
   };
   if (filters.jobStatus) {
     sanitizedFilters.jobStatus = filters.jobStatus;
