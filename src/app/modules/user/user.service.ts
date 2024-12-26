@@ -33,7 +33,6 @@ const getAllUsersFromDB = async (
   options: PaginateOptions
 ): Promise<PaginateResult<TUser>> => {
   const sanitizedFilters: Record<string, any> = {
-    ...filters,
     isDeleted: false,
     isEmailVerified: true,
   };
@@ -48,6 +47,9 @@ const getAllUsersFromDB = async (
       $regex: filters.email,
       $options: 'i',
     };
+  }
+  if (filters.role) {
+    sanitizedFilters['role'] = filters.role;
   }
   options.sortBy = '-createdAt';
   const users = await User.paginate(sanitizedFilters, options);

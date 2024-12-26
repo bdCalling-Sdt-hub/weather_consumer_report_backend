@@ -5,6 +5,8 @@ const aboutUsSchema = new Schema<IAboutUs>({
     type: String,
     required: true,
   },
+},{
+  timestamps: true
 });
 
 const AboutUs = model<IAboutUs>('AboutUs', aboutUsSchema);

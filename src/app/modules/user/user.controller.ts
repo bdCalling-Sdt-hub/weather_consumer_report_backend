@@ -102,8 +102,6 @@ const fillUpUserDetails = catchAsync(async (req: Request, res: Response) => {
 const updateMyProfile = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.id;
   const result = await UserService.updateMyProfile(userId, req.body);
-
-  console.log(req.body);
   return sendResponse(res, {
     code: StatusCodes.OK,
     message: 'User updated successfully.',
@@ -129,7 +127,7 @@ const changeUserStatus = catchAsync(async (req: Request, res: Response) => {
   await UserService.changeUserStatus(userId, action);
   return sendResponse(res, {
     code: StatusCodes.OK,
-    message: 'User deleted successfully.',
+    message : `User ${action}ed successfully.`,
     data: {},
   });
 });

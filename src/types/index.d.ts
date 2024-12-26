@@ -15,3 +15,11 @@ declare global {
     }
   }
 }
+
+declare namespace NodeJS {
+  interface Global {
+    io: SocketIO.Server;
+  }
+}
+
+declare const global: NodeJS.Global;

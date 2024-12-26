@@ -15,6 +15,10 @@ const userSchema = new Schema<TUser, UserModal>(
       type: String,
       required: [true, 'Last name is required'], // Custom error message
     },
+    fullName: {
+      type: String,
+      required: [true, 'Full name is required'], // Custom error message
+    },
     email: {
       type: String,
       required: [true, 'Email is required'], // Custom error message
@@ -121,11 +125,6 @@ const userSchema = new Schema<TUser, UserModal>(
 // Apply the paginate plugin
 userSchema.plugin(paginate);
 
-// Virtual field for fullName
-userSchema.virtual('fullName').get(function () {
-  return `${this.firstName} ${this.lastName}`;
-});
-
 // Static methods
 userSchema.statics.isExistUserById = async function (id: string) {
   return await this.findById(id);
@@ -149,6 +148,9 @@ userSchema.pre('save', async function (next) {
       this.password,
       Number(config.bcrypt.saltRounds)
     );
+  }
+  if (this.isModified('firstName') || this.isModified('lastName')) {
+    this.fullName = `${this.firstName} ${this.lastName}`;
   }
   next();
 });
