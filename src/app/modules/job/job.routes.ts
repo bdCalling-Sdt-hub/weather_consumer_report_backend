@@ -32,7 +32,7 @@ router
     JobController.deliveredJobByTechnician
   );
 router
-  .route('/complete-job')
+  .route('/accepted-job')
   .post(auth('company'), JobController.completeJob);
 
 router

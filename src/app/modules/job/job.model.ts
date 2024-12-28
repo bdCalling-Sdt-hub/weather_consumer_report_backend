@@ -70,7 +70,7 @@ const jobSchema = new Schema<IJob>(
     },
     jobStatus: {
       type: String,
-      enum: ['Pending', 'InProgress', 'Review', 'Completed', 'Cancelled'],
+      enum: ['Pending', 'InProgress', 'Delivered', 'Review', 'Completed', 'Cancelled'],
       default: 'Pending',
     },
     assignedTechnicianStatus: {

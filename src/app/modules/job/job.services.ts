@@ -260,6 +260,9 @@ const deliveredJobByTechnician = async (
   if (job.assignedTechnicianStatus !== 'Accepted') {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Job is not accepted yet.');
   }
+  if (job.jobStatus !== 'InProgress') {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Job is not in progress.');
+  }
   job.jobStatus = 'Delivered';
   job.completedWorkVideo = payload.completedWorkVideo as string;
   await job.save();
