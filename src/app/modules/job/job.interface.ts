@@ -26,7 +26,7 @@ export interface IJob {
     | 'Completed'
     | 'Cancelled';
   assignedTechnicianStatus: 'Pending' | 'Accepted' | 'Archived' | 'Rejected';
-  isAssigned: boolean;
+  isAssigned: boolean |string;
   isDeleted: boolean;
   stripeInvoiceId?: string | null;
   stripePaymentUrl?: string | null;

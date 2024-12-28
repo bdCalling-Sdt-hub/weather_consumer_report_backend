@@ -30,7 +30,7 @@ const getAdminNotifications = catchAsync(async (req, res) => {
   sendResponse(res, {
     code: StatusCodes.OK,
     data: result,
-    message: 'Notifications fetched successfully',
+    message: 'Admin Notifications fetched successfully',
   });
 });
 
@@ -56,21 +56,21 @@ const viewNotification = catchAsync(async (req, res) => {
 
 const deleteNotification = catchAsync(async (req, res) => {
   const { id } = req.params;
-  const result = await NotificationService.deleteNotification(id);
+  await NotificationService.deleteNotification(id);
   sendResponse(res, {
     code: StatusCodes.OK,
-    data: result,
     message: 'Notification deleted successfully',
+    data: {},
   });
 });
 
 const clearAllNotification = catchAsync(async (req, res) => {
   const userId = req.user.id;
-  const result = await NotificationService.clearAllNotification(userId);
+  await NotificationService.clearAllNotification(userId);
   sendResponse(res, {
     code: StatusCodes.OK,
-    data: result,
     message: 'All notifications cleared successfully',
+    data: {},
   });
 });
 

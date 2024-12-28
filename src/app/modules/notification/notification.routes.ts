@@ -6,7 +6,7 @@ const router = Router();
 
 router
   .route('/clear-all-notifications')
-  .get(auth('common'), NotificationController.clearAllNotification);
+  .delete(auth('common'), NotificationController.clearAllNotification);
 router
   .route('/admin-notifications')
   .get(auth('admin'), NotificationController.getAdminNotifications);

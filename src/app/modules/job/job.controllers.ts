@@ -19,7 +19,7 @@ const getAllJobs = catchAsync(async (req, res, next) => {
   const filters = pick(req.query, [
     'searchTerm',
     'creatorId',
-    'jobType',
+    'isAssigned',
     'jobStatus',
   ]);
   const options = pick(req.query, ['sortBy', 'page', 'limit', 'populate']);

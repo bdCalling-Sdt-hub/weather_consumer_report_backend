@@ -14,13 +14,13 @@ interface ISanitizedFilters {
 }
 const createJob = async (payload: Partial<IJob>): Promise<IJob> => {
   const result = await Job.create(payload);
-  const eventName = "admin-notification";
-  const notification : INotification = {
-    title: "New Job Created",
-    message: "A new job has been created.",
-    role: "admin",
+  const eventName = 'admin-notification';
+  const notification: INotification = {
+    title: 'New Job Created',
+    message: 'A new job has been created.',
+    role: 'admin',
     linkId: result._id,
-  }
+  };
   await NotificationService.addCustomNotification(eventName, notification);
   return result;
 };
@@ -31,10 +31,15 @@ const getAllJobs = async (
 ): Promise<PaginateResult<IJob>> => {
   const sanitizedFilters: ISanitizedFilters = {
     isDeleted: false,
-    isAssigned: false,
   };
   if (filters.jobStatus) {
     sanitizedFilters.jobStatus = filters.jobStatus;
+  }
+  if (filters.isAssigned === 'true') {
+    sanitizedFilters.isAssigned = true;
+  }
+  if (filters.isAssigned === 'false') {
+    sanitizedFilters.isAssigned = false;
   }
   options.populate = [
     {
@@ -50,6 +55,8 @@ const getAllJobs = async (
       },
     },
   ];
+
+  console.log(sanitizedFilters);
   const jobs = await Job.paginate(sanitizedFilters, options);
   return jobs;
 };
