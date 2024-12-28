@@ -3,7 +3,7 @@ import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 
 export interface IJob {
   _id: Types.ObjectId;
-  creatorId: Types.ObjectId;
+  creatorId: Types.ObjectId | string;
   jobLocation: string;
   jobRegistration: string;
   vinGenerated: string;
