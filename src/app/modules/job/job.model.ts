@@ -70,7 +70,14 @@ const jobSchema = new Schema<IJob>(
     },
     jobStatus: {
       type: String,
-      enum: ['Pending', 'InProgress', 'Delivered', 'Review', 'Completed', 'Cancelled'],
+      enum: [
+        'Pending',
+        'InProgress',
+        'Delivered',
+        'Review',
+        'Completed',
+        'Cancelled',
+      ],
       default: 'Pending',
     },
     assignedTechnicianStatus: {
@@ -99,5 +106,9 @@ const jobSchema = new Schema<IJob>(
     timestamps: true,
   }
 );
+
+// Attach the Pagination Plugin
 jobSchema.plugin(paginate);
+
+// Export the Job Model
 export const Job = mongoose.model<IJob, IJobModal>('Job', jobSchema);

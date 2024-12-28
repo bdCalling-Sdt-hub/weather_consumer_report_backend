@@ -15,10 +15,6 @@ const userSchema = new Schema<TUser, UserModal>(
       type: String,
       required: [true, 'Last name is required'], // Custom error message
     },
-    fullName: {
-      type: String,
-      required: [true, 'Full name is required'], // Custom error message
-    },
     email: {
       type: String,
       required: [true, 'Email is required'], // Custom error message
@@ -122,6 +118,10 @@ const userSchema = new Schema<TUser, UserModal>(
   }
 );
 
+userSchema.virtual('fullName').get(function () {
+  return `${this.firstName} ${this.lastName}`;
+});
+
 // Apply the paginate plugin
 userSchema.plugin(paginate);
 
@@ -148,9 +148,6 @@ userSchema.pre('save', async function (next) {
       this.password,
       Number(config.bcrypt.saltRounds)
     );
-  }
-  if (this.isModified('firstName') || this.isModified('lastName')) {
-    this.fullName = `${this.firstName} ${this.lastName}`;
   }
   next();
 });

@@ -3,6 +3,7 @@ import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 import { INotification } from './notification.interface';
 import { Notification } from './notification.model';
 import ApiError from '../../../errors/ApiError';
+import { User } from '../user/user.model';
 
 const addNotification = async (
   payload: INotification
@@ -48,7 +49,7 @@ const getSingleNotification = async (
 const addCustomNotification = async (
   eventName: string,
   notifications: INotification,
-  userId?: string,
+  userId?: string
 ) => {
   const messageEvent = `${eventName}::${userId}`;
   const result = await addNotification(notifications);
@@ -92,6 +93,11 @@ const deleteNotification = async (notificationId: string) => {
 };
 
 const clearAllNotification = async (userId: string) => {
+  const user = await User.findById(userId);
+  if (user?.role === 'admin') {
+    const result = await Notification.deleteMany({ role: 'admin' });
+    return result;
+  }
   const result = await Notification.deleteMany({ receiverId: userId });
   return result;
 };

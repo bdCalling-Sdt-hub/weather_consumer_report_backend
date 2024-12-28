@@ -1,8 +1,6 @@
 import colors from 'colors';
 import { Server, Socket } from 'socket.io';
 import { logger } from '../../shared/logger';
-import mongoose from 'mongoose';
-import { User } from '../modules/user/user.model';
 
 declare module 'socket.io' {
   interface Socket {
@@ -13,8 +11,7 @@ declare module 'socket.io' {
 const socket = (io: Server) => {
   io.on('connection', (socket: Socket) => {
     logger.info(colors.blue('🔌🟢 A user connected'));
-
-    socket.on('register', (userId: string) => {
+    socket.on('user-connected', (userId: string) => {
       socket.userId = userId;
       socket.join(userId); // Join the room for the specific user
       logger.info(
