@@ -1,4 +1,3 @@
-import { Order } from '../orders/orders.model';
 import { Payment } from '../payment/payment.model';
 import { User } from '../user/user.model';
 const monthNames = [
@@ -16,23 +15,32 @@ const monthNames = [
   'Dec',
 ];
 const getDashboardData = async () => {
-  const totalUsers = await User.countDocuments({ role: 'user' });
-  const totalBusinessman = await User.countDocuments({ role: 'businessman' });
-  const totalCompletedOrders = await Order.countDocuments({
-    orderStatus: 'delivered',
+  const totalTechnician = await User.countDocuments({
+    role: 'technician',
+    isDeleted: false,
+    isEmailVerified: true,
+  });
+  const totalCompany = await User.countDocuments({
+    role: 'company',
+    isDeleted: false,
+    isEmailVerified: true,
+  });
+  const totalUsers = await User.countDocuments({
+    role: { $ne: 'admin' },
+    isDeleted: false,
+    isEmailVerified: true,
   });
 
   // Calculate total earnings by summing the totalAmount from completed and paid orders
   const totalEarnings = await Payment.aggregate([
-    { $match: { paymentStatus: 'succeeded' } },
     { $group: { _id: null, total: { $sum: '$totalAmount' } } },
   ]);
 
-  const earnings = totalEarnings.length > 0 ? totalEarnings[0].total : 0; 
+  const earnings = totalEarnings.length > 0 ? totalEarnings[0].total : 0;
   return {
+    totalTechnician,
+    totalCompany,
     totalUsers,
-    totalBusinessman,
-    totalCompletedOrders,
     totalEarnings: earnings,
   };
 };
@@ -41,7 +49,6 @@ const earningsGraphChart = async (year: number) => {
   const payments = await Payment.aggregate([
     {
       $match: {
-        paymentStatus: 'succeeded',
         createdAt: {
           $gte: new Date(`${year}-01-01`),
           $lte: new Date(`${year}-12-31`),
@@ -72,5 +79,5 @@ const earningsGraphChart = async (year: number) => {
 
 export const AdminServices = {
   getDashboardData,
-  earningsGraphChart
+  earningsGraphChart,
 };
