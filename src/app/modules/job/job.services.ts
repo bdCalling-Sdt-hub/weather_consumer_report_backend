@@ -230,16 +230,21 @@ const approveJobByCompany = async (jobId: string): Promise<IJob> => {
   const job = await Job.findOne({
     _id: jobId,
     isDeleted: false,
-    isAssigned: true,
   });
   if (!job) {
-    throw new ApiError(StatusCodes.NOT_FOUND, 'Job not found or not assigned.');
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Job not found');
+  }
+  if (!job.isAssigned) {
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      'Job is not assigned to any technician.'
+    );
   }
 
   if (job.jobStatus !== 'Pending') {
     throw new ApiError(
       StatusCodes.BAD_REQUEST,
-      'Job is not awaiting approval.'
+      `Job cannot be approved because it is in ${job.jobStatus} status.`
     );
   }
 
@@ -282,8 +287,8 @@ const approveJobByCompany = async (jobId: string): Promise<IJob> => {
   // Finalize the invoice to generate the hosted_invoice_url
   const finalizedInvoice = await stripe.invoices.finalizeInvoice(invoice.id);
   // Update job with invoice details
-  job.stripeInvoiceId = finalizedInvoice.id;
-  job.stripePaymentUrl = finalizedInvoice.hosted_invoice_url;
+  job.stripeInvoiceId = finalizedInvoice?.id;
+  job.stripePaymentUrl = finalizedInvoice?.hosted_invoice_url;
   job.jobStatus = 'InProgress';
   job.assignedTechnicianStatus = 'Accepted';
   await job.save();
@@ -310,41 +315,68 @@ const archivedJobByCompany = async (jobId: string): Promise<IJob> => {
   const job = await Job.findOne({
     _id: jobId,
     isDeleted: false,
-    isAssigned: true,
   });
+
   if (!job) {
-    throw new ApiError(StatusCodes.NOT_FOUND, 'Job not found or not assigned.');
+    throw new ApiError(
+      StatusCodes.NOT_FOUND,
+      'The job you are trying to archive does not exist.'
+    );
   }
+  // Check if job exists and is assigned
+  if (!job?.isAssigned) {
+    throw new ApiError(
+      StatusCodes.NOT_FOUND,
+      'The job you are trying to archive either does not exist or has not been assigned to a technician.'
+    );
+  }
+
+  // Check technician status
   if (
     job.assignedTechnicianStatus !== 'Pending' &&
     job.assignedTechnicianStatus !== 'Accepted'
   ) {
     throw new ApiError(
       StatusCodes.BAD_REQUEST,
-      'Job is not awaiting approval.'
+      `The job cannot be archived because it is currently in the "${job.assignedTechnicianStatus}" status. Only jobs awaiting approval can be archived.`
     );
   }
 
+  // Archive the job
   job.assignedTechnicianStatus = 'Archived';
   await job.save();
+
   return job;
 };
+
 const rejectJobByCompany = async (jobId: string): Promise<IJob> => {
   const job = await Job.findOne({
     _id: jobId,
     isDeleted: false,
-    isAssigned: true,
   });
+
   if (!job) {
-    throw new ApiError(StatusCodes.NOT_FOUND, 'Job not found or not assigned.');
+    throw new ApiError(
+      StatusCodes.NOT_FOUND,
+      'The job you are trying to reject does not exist.'
+    );
   }
+  // Check if job exists and is assigned
+  if (!job.isAssigned) {
+    throw new ApiError(
+      StatusCodes.NOT_FOUND,
+      'The job you are trying to reject does not exist or has not been assigned to a technician.'
+    );
+  }
+
+  // Check technician status
   if (
     job.assignedTechnicianStatus !== 'Pending' &&
     job.assignedTechnicianStatus !== 'Accepted'
   ) {
     throw new ApiError(
       StatusCodes.BAD_REQUEST,
-      'Job is not awaiting approval.'
+      `The job cannot be rejected because it is currently in the "${job.assignedTechnicianStatus}" status. Only jobs awaiting approval can be rejected.`
     );
   }
 
@@ -359,7 +391,7 @@ const rejectJobByCompany = async (jobId: string): Promise<IJob> => {
   const technicianEventName = 'technician-notification';
   const technicianNotification: INotification = {
     title: 'Job Assignment Rejected',
-    message: `Unfortunately, the company has decided not to approve your assignment for the job. Please check for other opportunities or contact the company for further details.`,
+    message: `We regret to inform you that the company has decided not to approve your assignment for the job. You can check for other opportunities or contact the company for further details.`,
     role: 'technician',
     linkId: job._id,
   };
@@ -382,17 +414,33 @@ const deliveredJobByTechnician = async (
   const job = await Job.findOne({
     _id: jobId,
     isDeleted: false,
-    isAssigned: true,
   });
 
   if (!job) {
-    throw new ApiError(StatusCodes.NOT_FOUND, 'Job not found or not assigned.');
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Job not found.');
   }
+  // Check if job exists and is assigned
+  if (!job?.isAssigned) {
+    throw new ApiError(
+      StatusCodes.NOT_FOUND,
+      'The job you are trying to deliver either does not exist or has not been assigned to you.'
+    );
+  }
+
+  // Check if job is accepted by the technician
   if (job.assignedTechnicianStatus !== 'Accepted') {
-    throw new ApiError(StatusCodes.BAD_REQUEST, 'Job is not accepted yet.');
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      'The job cannot be delivered as it has not been accepted yet. Please wait for acceptance before delivering your work.'
+    );
   }
+
+  // Check if job status is in progress
   if (job.jobStatus !== 'InProgress') {
-    throw new ApiError(StatusCodes.BAD_REQUEST, 'Job is not in progress.');
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      'The job cannot be delivered as it is not currently in progress. Please confirm the job status before delivering.'
+    );
   }
 
   // Update job status to delivered
@@ -404,7 +452,7 @@ const deliveredJobByTechnician = async (
   const companyEventName = 'company-notification';
   const companyNotification: INotification = {
     title: 'Technician Delivered the Work',
-    message: `The technician has delivered the work for the job. Please review the completed work and accept it if everything is satisfactory.`,
+    message: `The technician has delivered the work for the job. Please review the completed work and accept it if everything meets your expectations.`,
     role: 'company',
     linkId: job._id,
   };
@@ -412,7 +460,7 @@ const deliveredJobByTechnician = async (
   await NotificationService.addCustomNotification(
     companyEventName,
     companyNotification,
-    job.creatorId as string // Assuming `job.creator` holds the company user ID
+    job.creatorId as string // Assuming `job.creatorId` holds the company user ID
   );
 
   return job;
@@ -423,47 +471,96 @@ const completeJob = async (jobId: string): Promise<IJob> => {
     _id: jobId,
     isDeleted: false,
   });
+
+  // Check if job exists
   if (!job) {
-    throw new ApiError(StatusCodes.NOT_FOUND, 'Job not found.');
+    throw new ApiError(
+      StatusCodes.NOT_FOUND,
+      'The job you are trying to complete does not exist or has already been removed.'
+    );
   }
+
+  // Check if job is assigned
+  if (!job.isAssigned) {
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      'The job cannot be marked as completed because it has not been assigned to a technician.'
+    );
+  }
+
+  // Check if job is in progress or delivered
   if (job.jobStatus !== 'InProgress' && job.jobStatus !== 'Delivered') {
-    throw new ApiError(StatusCodes.BAD_REQUEST, 'Job is not in progress.');
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      `The job cannot be completed because it is currently in the "${job.jobStatus}" status. Only jobs that are "InProgress" or "Delivered" can be marked as completed.`
+    );
   }
 
   // Check payment status from Stripe
   const invoice = await stripe.invoices.retrieve(job.stripeInvoiceId!);
-
   if (invoice.status !== 'paid') {
     throw new ApiError(
       StatusCodes.BAD_REQUEST,
-      'Payment is not completed yet.'
+      'The job cannot be completed because the payment has not yet been processed. Please ensure payment is completed before marking the job as complete.'
     );
   }
+
   // Mark the job as completed
   job.jobStatus = 'Completed';
   await job.save();
 
+  // Deduct platform fee and calculate remaining amount
   const deduction = (job.jobBidPrice * 10) / 100;
-  // Calculate the remaining amount
   const remainingAmount = job.jobBidPrice - deduction;
 
-  // Add the remaining amount to technician's wallet
+  // Add remaining amount to the technician's wallet
   await WalletService.addMoney(
     job.assignedTechnician as string,
     remainingAmount
   );
 
-  //push payment model
+  // Record payment in the payment history
   await Payment.create({
     userId: job.creatorId,
     totalAmount: job.jobBidPrice,
     paymentHistory: invoice,
   });
+
+  //notify admin about job completion
+  const adminEventName = 'admin-notification';
+
+  const adminNotification: INotification = {
+    title: 'Payment Received and Job Completed',
+    message: `The job has been successfully completed and the payment has been completed. Please review the job details and payment history.`,
+    role: 'admin',
+    linkId: job._id,
+  };
+
+  await NotificationService.addCustomNotification(
+    adminEventName,
+    adminNotification
+  );
+
+  // Notify company about job completion
+  const companyEventName = 'company-notification';
+  const companyNotification: INotification = {
+    title: 'You Have Successfully Paid the Technician',
+    message: `You have successfully paid the technician for the job. The job has been marked as completed.`,
+    role: 'company',
+    linkId: job._id,
+  };
+
+  await NotificationService.addCustomNotification(
+    companyEventName,
+    companyNotification,
+    job.creatorId as string // Assuming `job.creatorId` holds the company user ID
+  );
+
   // Notify technician about payment
   const technicianEventName = 'technician-notification';
   const technicianNotification: INotification = {
     title: 'Job Completed and Payment Received',
-    message: `Congratulations! You have received the payment for the job. The amount has been added to your wallet.`,
+    message: `Congratulations! The job has been completed successfully, and the payment has been added to your wallet.`,
     role: 'technician',
     linkId: job._id,
   };
@@ -473,6 +570,7 @@ const completeJob = async (jobId: string): Promise<IJob> => {
     technicianNotification,
     job.assignedTechnician as string
   );
+
   return job;
 };
 
