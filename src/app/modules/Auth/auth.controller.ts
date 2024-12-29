@@ -40,7 +40,6 @@ const resendOTP = catchAsync(async (req, res, next) => {
 const verifyEmail = catchAsync(async (req, res, next) => {
   const verifyData = req.body;
   const result = await AuthService.verifyEmail(verifyData);
-  console.log(result)
   sendResponse(res, {
     code: StatusCodes.OK,
     message: 'Verify Email Successful',

@@ -155,7 +155,29 @@ const verifyEmail = async (payload: IVerifyEmail) => {
   user.oneTimeCode = null;
   user.oneTimeCodeExpire = null;
   user.otpCountDown = null;
-  return await user.save();
+  await user.save();
+  const accessTokenPayload = {
+    id: user._id,
+    email: user.email,
+    role: user.role,
+  };
+
+  const accessToken = jwtHelper.createToken(
+    accessTokenPayload,
+    config.jwt.accessSecret as Secret,
+    config.jwt.accessExpirationTime
+  );
+  const refreshToken = jwtHelper.createToken(
+    accessTokenPayload,
+    config.jwt.accessSecret as Secret,
+    config.jwt.refreshExpirationTime
+  );
+  return {
+    tokens: {
+      accessToken,
+      refreshToken,
+    },
+  };
 };
 
 const resetPassword = async (payload: IResetPassword) => {
