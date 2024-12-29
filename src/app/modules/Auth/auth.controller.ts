@@ -16,12 +16,12 @@ const loginIntoDB = catchAsync(async (req, res, next) => {
 //forgot password
 const forgotPassword = catchAsync(async (req, res, next) => {
   const { email } = req.body;
-  await AuthService.forgotPassword(email);
+  const result = await AuthService.forgotPassword(email);
   sendResponse(res, {
     code: StatusCodes.OK,
     message:
       'OTP sent to your email, please verify your email within the next 3 minutes',
-    data: {},
+    data: result,
   });
 });
 
@@ -29,6 +29,7 @@ const forgotPassword = catchAsync(async (req, res, next) => {
 const verifyEmail = catchAsync(async (req, res, next) => {
   const verifyData = req.body;
   const result = await AuthService.verifyEmail(verifyData);
+  console.log(result)
   sendResponse(res, {
     code: StatusCodes.OK,
     message: 'Verify Email Successful',
@@ -61,7 +62,6 @@ const changePassword = catchAsync(async (req, res, next) => {
 
 //refresh token
 const refreshToken = catchAsync(async (req, res, next) => {
-  console.log(req.cookies);
   const { refreshToken } = req.cookies;
   const result = await AuthService.refreshToken(refreshToken);
   res.cookie('refreshToken', result.accessToken, {

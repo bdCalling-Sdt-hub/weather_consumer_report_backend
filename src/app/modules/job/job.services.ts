@@ -101,6 +101,36 @@ const deleteJob = async (jobId: string): Promise<IJob> => {
   return job;
 };
 
+//get creator added job
+const getCreatorAddedAllJobs = async (
+  filters: Partial<IJob>,
+  options: PaginateOptions,
+  creatorId: string
+): Promise<PaginateResult<IJob>> => {
+  const sanitizedFilters: ISanitizedFilters = {
+    isDeleted: false,
+    creatorId,
+  };
+  if (filters.jobStatus) {
+    sanitizedFilters.jobStatus = filters.jobStatus;
+  }
+  options.populate = [
+    {
+      path: 'creatorId',
+    },
+    {
+      path: 'assignedTechnician',
+    },
+    {
+      path: 'bidTechnician',
+      populate: {
+        path: 'technicianId',
+      },
+    },
+  ];
+  const jobs = await Job.paginate(sanitizedFilters, options);
+  return jobs;
+};
 const assignTechnicianToJob = async (
   jobId: string,
   technicianId: string,
@@ -162,6 +192,37 @@ const assignTechnicianToJob = async (
     job.creatorId as string
   );
   return job;
+};
+
+//technician work
+const technicianAssignedJob = async (
+  filters: Partial<IJob>,
+  options: PaginateOptions,
+  technicianId: string
+): Promise<PaginateResult<IJob>> => {
+  const sanitizedFilters: ISanitizedFilters = {
+    isDeleted: false,
+    assignedTechnician: technicianId,
+  };
+  if (filters.jobStatus) {
+    sanitizedFilters.jobStatus = filters.jobStatus;
+  }
+  options.populate = [
+    {
+      path: 'creatorId',
+    },
+    {
+      path: 'assignedTechnician',
+    },
+    {
+      path: 'bidTechnician',
+      populate: {
+        path: 'technicianId',
+      },
+    },
+  ];
+  const jobs = await Job.paginate(sanitizedFilters, options);
+  return jobs;
 };
 
 // approveJobByCompany
@@ -426,5 +487,7 @@ export const JobService = {
   rejectJobByCompany,
   deliveredJobByTechnician,
   approveJobByCompany,
+  technicianAssignedJob,
+  getCreatorAddedAllJobs,
   completeJob,
 };

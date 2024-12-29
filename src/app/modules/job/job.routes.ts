@@ -7,33 +7,47 @@ const UPLOADS_FOLDER = 'uploads/jobs';
 const upload = fileUploadHandler(UPLOADS_FOLDER);
 const router = Router();
 
+//assign technician
 router
   .route('/assign-technician')
   .post(auth('admin'), JobController.assignTechnicianToJob);
 
+//technician assigned job
+router
+  .route('/technician-assigned-job')
+  .get(auth('technician'), JobController.technicianAssignedJob);
+// company added all jobs
+router
+  .route('/company-added-all-jobs')
+  .get(auth('company'), JobController.getCreatorAddedAllJobs);
+
+//approve job by company
 router
   .route('/approve-job')
   .post(auth('company'), JobController.approveJobByCompany);
 
+//archive job by company
 router
   .route('/archive-job')
   .post(auth('company'), JobController.archivedJobByCompany);
 
+//reject job by company
 router
   .route('/reject-job')
   .post(auth('company'), JobController.rejectJobByCompany);
 
+//delivered job by technician
 router
-  .route('/deliver-job')
+  .route('/submit-work')
   .post(
     auth('technician'),
     upload.single('completedWorkVideo'),
     convertHeicToPngMiddleware(UPLOADS_FOLDER),
     JobController.deliveredJobByTechnician
   );
-router
-  .route('/accepted-job')
-  .post(auth('company'), JobController.completeJob);
+
+//accept job by company
+router.route('/accepted-job').post(auth('company'), JobController.completeJob);
 
 router
   .route('/')

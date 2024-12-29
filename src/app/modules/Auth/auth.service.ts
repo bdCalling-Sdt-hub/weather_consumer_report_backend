@@ -88,17 +88,12 @@ const forgotPassword = async (email: string) => {
   await user.save();
   await sendResetPasswordEmail(user.email, oneTimeCode);
 
-  return {
-    message:
-      'A reset password email has been sent to your registered email address.',
-  };
+  return user;
 };
 
 const verifyEmail = async (payload: IVerifyEmail) => {
   const { email, oneTimeCode } = payload;
-
   const user = await User.findOne({ email });
-
   if (!user) {
     throw new ApiError(
       StatusCodes.NOT_FOUND,
@@ -122,24 +117,20 @@ const verifyEmail = async (payload: IVerifyEmail) => {
     user.isEmailVerified = true;
     user.oneTimeCode = null;
     user.oneTimeCodeExpire = null;
-    await user.save();
-    return;
+    return await user.save();
   }
   if (user.isEmailVerified && user.isResetPassword) {
     user.isEmailVerified = true;
     user.isResetPassword = false;
     user.oneTimeCode = null;
     user.oneTimeCodeExpire = null;
-    await user.save();
-    return;
+    return await user.save();
   }
   user.isEmailVerified = true;
   user.isResetPassword = false;
   user.oneTimeCode = null;
   user.oneTimeCodeExpire = null;
-  await user.save();
-
-  return user;
+  return await user.save();
 };
 
 const resetPassword = async (payload: IResetPassword) => {

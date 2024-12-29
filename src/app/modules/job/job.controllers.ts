@@ -62,6 +62,22 @@ const deleteJob = catchAsync(async (req, res, next) => {
   });
 });
 
+//get creator added all jobs
+const getCreatorAddedAllJobs = catchAsync(async (req, res, next) => {
+  const creatorId = req.user.id;
+  const filters = pick(req.query, ['searchTerm', 'jobStatus']);
+  const options = pick(req.query, ['sortBy', 'page', 'limit', 'populate']);
+  const result = await JobService.getCreatorAddedAllJobs(
+    filters,
+    options,
+    creatorId
+  );
+  sendResponse(res, {
+    code: StatusCodes.OK,
+    message: 'Creator added jobs retrieved successfully',
+    data: result,
+  });
+});
 const assignTechnicianToJob = catchAsync(async (req, res, next) => {
   const { jobId, technicianId, bidPrice } = req.body;
   const result = await JobService.assignTechnicianToJob(
@@ -72,6 +88,22 @@ const assignTechnicianToJob = catchAsync(async (req, res, next) => {
   sendResponse(res, {
     code: StatusCodes.OK,
     message: 'Technician assigned to job successfully',
+    data: result,
+  });
+});
+
+const technicianAssignedJob = catchAsync(async (req, res, next) => {
+  const userId = req.user.id;
+  const filters = pick(req.query, ['searchTerm', 'userId', 'jobStatus']);
+  const options = pick(req.query, ['sortBy', 'page', 'limit', 'populate']);
+  const result = await JobService.technicianAssignedJob(
+    filters,
+    options,
+    userId
+  );
+  sendResponse(res, {
+    code: StatusCodes.OK,
+    message: 'Technician assigned job retrieved successfully',
     data: result,
   });
 });
@@ -142,4 +174,6 @@ export const JobController = {
   rejectJobByCompany,
   deliveredJobByTechnician,
   completeJob,
+  technicianAssignedJob,
+  getCreatorAddedAllJobs
 };
