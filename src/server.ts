@@ -5,6 +5,7 @@ import app from './app';
 import config from './config';
 import { errorLogger, logger } from './shared/logger';
 import { socketHelper } from './app/socket/socket';
+import assignTechnicianBasedOnAdminMaxPrice from './app/modules/job/job-cron.service';
 
 //uncaught exception
 process.on('uncaughtException', error => {
@@ -20,6 +21,7 @@ async function main() {
     const port =
       typeof config.port === 'number' ? config.port : Number(config.port);
 
+    assignTechnicianBasedOnAdminMaxPrice();
     server = app.listen(port, config.backendIp as string, () => {
       logger.info(
         colors.yellow(
