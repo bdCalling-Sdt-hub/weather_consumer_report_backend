@@ -8,7 +8,6 @@ import { WalletService } from '../wallet/wallet.services';
 import { User } from '../user/user.model';
 import { NotificationService } from '../notification/notification.services';
 import { INotification } from '../notification/notification.interface';
-import { PaymentService } from '../payment/payment.service';
 import { Payment } from '../payment/payment.model';
 
 interface ISanitizedFilters {
@@ -165,6 +164,7 @@ const assignTechnicianToJob = async (
   const technicianEventName = 'technician-notification';
   const technicianNotification: INotification = {
     title: 'Job Assigned to You',
+    receiverId: technicianId,
     message:
       'The admin has assigned you to the job you recently bid for. Please review the details and proceed.',
     role: 'technician',
@@ -174,13 +174,14 @@ const assignTechnicianToJob = async (
   await NotificationService.addCustomNotification(
     technicianEventName,
     technicianNotification,
-    job.assignedTechnician as string
+    technicianId as string
   );
 
   // Notify company about technician
   const creatorEventName = 'company-notification';
   const creatorNotification: INotification = {
     title: 'Technician Assigned to Your Job',
+    receiverId: job?.creatorId,
     message: `The technician ${technician.fullName} has been assigned to your job. You can review the job details.`,
     role: 'company',
     linkId: job._id,
@@ -297,6 +298,7 @@ const approveJobByCompany = async (jobId: string): Promise<IJob> => {
   const technicianEventName = 'technician-notification';
   const technicianNotification: INotification = {
     title: 'Congratulations! You Are Approved!',
+    receiverId: job.assignedTechnician as string,
     message: `Congratulations! The company has approved you for the job. Please start working on the assigned job and complete it as soon as possible.`,
     role: 'technician',
     linkId: job._id,
@@ -391,6 +393,7 @@ const rejectJobByCompany = async (jobId: string): Promise<IJob> => {
   const technicianEventName = 'technician-notification';
   const technicianNotification: INotification = {
     title: 'Job Assignment Rejected',
+    receiverId: technicianId as string,
     message: `We regret to inform you that the company has decided not to approve your assignment for the job. You can check for other opportunities or contact the company for further details.`,
     role: 'technician',
     linkId: job._id,
@@ -452,6 +455,7 @@ const deliveredJobByTechnician = async (
   const companyEventName = 'company-notification';
   const companyNotification: INotification = {
     title: 'Technician Delivered the Work',
+    receiverId: job.creatorId,
     message: `The technician has delivered the work for the job. Please review the completed work and accept it if everything meets your expectations.`,
     role: 'company',
     linkId: job._id,
@@ -545,6 +549,7 @@ const completeJob = async (jobId: string): Promise<IJob> => {
   const companyEventName = 'company-notification';
   const companyNotification: INotification = {
     title: 'You Have Successfully Paid the Technician',
+    receiverId: job.creatorId,
     message: `You have successfully paid the technician for the job. The job has been marked as completed.`,
     role: 'company',
     linkId: job._id,
@@ -560,6 +565,7 @@ const completeJob = async (jobId: string): Promise<IJob> => {
   const technicianEventName = 'technician-notification';
   const technicianNotification: INotification = {
     title: 'Job Completed and Payment Received',
+    receiverId: job.assignedTechnician as string,
     message: `Congratulations! The job has been completed successfully, and the payment has been added to your wallet.`,
     role: 'technician',
     linkId: job._id,
