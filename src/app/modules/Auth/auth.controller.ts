@@ -25,6 +25,17 @@ const forgotPassword = catchAsync(async (req, res, next) => {
   });
 });
 
+//resend otp
+const resendOTP = catchAsync(async (req, res, next) => {
+  const { email } = req.body;
+  const result = await AuthService.resendOTP(email);
+  sendResponse(res, {
+    code: StatusCodes.OK,
+    message:
+      'OTP sent to your email, please verify your email within the next 3 minutes',
+    data: result,
+  });
+})
 //verify email
 const verifyEmail = catchAsync(async (req, res, next) => {
   const verifyData = req.body;
@@ -81,4 +92,5 @@ export const AuthController = {
   resetPassword,
   changePassword,
   refreshToken,
+  resendOTP
 };

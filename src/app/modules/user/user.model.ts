@@ -110,6 +110,16 @@ const userSchema = new Schema<TUser, UserModal>(
       default: null,
       required: [false, 'One-time code expiry is optional'],
     },
+    otpCountDown:{
+      type: Number,
+      default: null,
+      required: [false, 'OTP count down is optional'],
+    },
+    status:{
+      type: String,
+      enum: ['Active', 'Blocked', 'Delete'],
+      default: 'Active',
+    }
   },
   {
     timestamps: true,

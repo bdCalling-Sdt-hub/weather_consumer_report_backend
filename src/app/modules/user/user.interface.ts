@@ -29,6 +29,7 @@ export type TUser = {
   isResetPassword: boolean;
   oneTimeCode?: string | null;
   oneTimeCodeExpire?: Date | null;
+  otpCountDown?: number | null; 
   createdAt: Date;
   updatedAt: Date;
 };

@@ -21,6 +21,7 @@ router.post(
 );
 
 router.post('/forgot-password', AuthController.forgotPassword);
+router.post('/resend-otp', AuthController.resendOTP);
 router.post(
   '/verify-email',
   validateRequest(AuthValidation.verifyEmailValidationSchema),

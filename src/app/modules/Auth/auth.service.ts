@@ -81,11 +81,33 @@ const forgotPassword = async (email: string) => {
   validateUserStatus(user);
 
   const { oneTimeCode, oneTimeCodeExpire } = createOtp();
+  user.otpCountDown = 180;
   user.isResetPassword = true;
   user.oneTimeCode = oneTimeCode;
   user.oneTimeCodeExpire = oneTimeCodeExpire;
 
   await user.save();
+  await sendResetPasswordEmail(user.email, oneTimeCode);
+
+  return user;
+};
+
+const resendOTP = async (email: string) => {
+  const user = await User.findOne({ email, isEmailVerified: true });
+
+  if (!user) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'User not found.');
+  }
+
+  // Reset OTP countdown and generate a new OTP
+  user.otpCountDown = 180; // Reset countdown to 180 seconds
+  const { oneTimeCode, oneTimeCodeExpire } = createOtp(); // Generate new OTP
+  user.oneTimeCode = oneTimeCode;
+  user.oneTimeCodeExpire = oneTimeCodeExpire;
+
+  await user.save();
+
+  // Send the OTP via email
   await sendResetPasswordEmail(user.email, oneTimeCode);
 
   return user;
@@ -117,6 +139,7 @@ const verifyEmail = async (payload: IVerifyEmail) => {
     user.isEmailVerified = true;
     user.oneTimeCode = null;
     user.oneTimeCodeExpire = null;
+    user.otpCountDown = null;
     return await user.save();
   }
   if (user.isEmailVerified && user.isResetPassword) {
@@ -124,12 +147,14 @@ const verifyEmail = async (payload: IVerifyEmail) => {
     user.isResetPassword = false;
     user.oneTimeCode = null;
     user.oneTimeCodeExpire = null;
+    user.otpCountDown = null;
     return await user.save();
   }
   user.isEmailVerified = true;
   user.isResetPassword = false;
   user.oneTimeCode = null;
   user.oneTimeCodeExpire = null;
+  user.otpCountDown = null;
   return await user.save();
 };
 
@@ -209,6 +234,7 @@ export const AuthService = {
   loginIntoDB,
   verifyEmail,
   forgotPassword,
+  resendOTP,
   resetPassword,
   changePassword,
   refreshToken,

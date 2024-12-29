@@ -13,6 +13,7 @@ const createUserToDB = async (payload: Partial<TUser>) => {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Email is already in use!');
   }
   const { oneTimeCode, oneTimeCodeExpire } = createOtp();
+  payload.otpCountDown = 180;
   payload.oneTimeCode = oneTimeCode;
   payload.oneTimeCodeExpire = oneTimeCodeExpire;
 
