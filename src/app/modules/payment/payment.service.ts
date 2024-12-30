@@ -6,7 +6,7 @@ const getAllPayments = async (
   options: PaginateOptions
 ): Promise<PaginateResult<IPayment>> => {
   options.sortBy = '-createdAt';
-  options.populate = [{ path: 'userId' }];
+  options.populate = [{ path: 'userId', select: 'fullName email image location homeAddress' }];
   const payments = await Payment.paginate(filters, options);
   return payments;
 };

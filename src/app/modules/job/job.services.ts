@@ -45,19 +45,21 @@ const getAllJobs = async (
   options.populate = [
     {
       path: 'creatorId',
+      select: 'fullName email location image',
     },
     {
       path: 'assignedTechnician',
+      select: 'fullName email workVehicle workExperience drivingLicenseFront drivingLicenseBack location image',
     },
     {
       path: 'bidTechnician',
       populate: {
         path: 'technicianId',
+        select: 'fullName email workVehicle workExperience drivingLicenseFront drivingLicenseBack location image',
       },
     },
   ];
 
-  console.log(sanitizedFilters);
   const jobs = await Job.paginate(sanitizedFilters, options);
   return jobs;
 };
@@ -66,7 +68,21 @@ const getSingleJob = async (jobId: string): Promise<IJob | null> => {
   const job = await Job.findOne({
     _id: jobId,
     isDeleted: false,
-  });
+  }).populate([
+    {
+      path: 'creatorId',
+      select: 'fullName email location image',
+    },
+    {
+      path: 'assignedTechnician',
+      select:
+        'fullName email workVehicle workExperience drivingLicenseFront drivingLicenseBack location image',
+    },
+    {
+      path: 'bidTechnician.technicianId',
+      select: 'fullName email workVehicle workExperience drivingLicenseFront drivingLicenseBack location image',
+    },
+  ]);
   if (!job) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Job not found.');
   }
