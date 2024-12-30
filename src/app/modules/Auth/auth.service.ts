@@ -93,7 +93,7 @@ const forgotPassword = async (email: string) => {
 };
 
 const resendOTP = async (email: string) => {
-  const user = await User.findOne({ email, isEmailVerified: true });
+  const user = await User.findOne({ email});
 
   if (!user) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'User not found.');
