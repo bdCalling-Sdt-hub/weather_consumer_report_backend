@@ -49,13 +49,15 @@ const getAllJobs = async (
     },
     {
       path: 'assignedTechnician',
-      select: 'fullName email workVehicle workExperience drivingLicenseFront drivingLicenseBack location image',
+      select:
+        'fullName email workVehicle workExperience drivingLicenseFront drivingLicenseBack location image',
     },
     {
       path: 'bidTechnician',
       populate: {
         path: 'technicianId',
-        select: 'fullName email workVehicle workExperience drivingLicenseFront drivingLicenseBack location image',
+        select:
+          'fullName email workVehicle workExperience drivingLicenseFront drivingLicenseBack location image',
       },
     },
   ];
@@ -80,7 +82,8 @@ const getSingleJob = async (jobId: string): Promise<IJob | null> => {
     },
     {
       path: 'bidTechnician.technicianId',
-      select: 'fullName email workVehicle workExperience drivingLicenseFront drivingLicenseBack location image',
+      select:
+        'fullName email workVehicle workExperience drivingLicenseFront drivingLicenseBack location image',
     },
   ]);
   if (!job) {
@@ -146,6 +149,54 @@ const getCreatorAddedAllJobs = async (
   const jobs = await Job.paginate(sanitizedFilters, options);
   return jobs;
 };
+
+const declineJobByTechnician = async (
+  jobId: string,
+  userId: string,
+  reason: string
+): Promise<IJob> => {
+  const job = await Job.findOne({
+    _id: jobId,
+    isDeleted: false,
+  });
+
+  // Check if the job exists
+  if (!job) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Job not found.');
+  }
+
+  //check if this job already  assigned to technician
+  if (job?.isAssigned) {
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      'This job already assigned to technician.'
+    );
+  }
+  // Check if the user is already associated with the job decline reasons
+  const alreadyDeclined = job.jobDeclineReason.some(
+    declineReason => String(declineReason.userId) === userId
+  );
+
+  if (alreadyDeclined) {
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      'User has already declined this job.'
+    );
+  }
+
+  // Push the decline reason to the job's jobDeclineReason array
+  job.jobDeclineReason.push({
+    userId,
+    jobId,
+    reason,
+  });
+
+  // Save the updated job
+  await job.save();
+
+  return job;
+};
+
 const assignTechnicianToJob = async (
   jobId: string,
   technicianId: string,
@@ -609,5 +660,6 @@ export const JobService = {
   approveJobByCompany,
   technicianAssignedJob,
   getCreatorAddedAllJobs,
+  declineJobByTechnician,
   completeJob,
 };

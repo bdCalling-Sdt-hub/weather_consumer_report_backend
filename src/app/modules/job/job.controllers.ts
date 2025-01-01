@@ -62,6 +62,18 @@ const deleteJob = catchAsync(async (req, res, next) => {
   });
 });
 
+//decline job by technician
+const declineJobByTechnician = catchAsync(async (req, res, next) => {
+  const { jobId, reason } = req.body;
+  const userId = req.user.id;
+  const result = await JobService.declineJobByTechnician(jobId, userId, reason);
+  sendResponse(res, {
+    code: StatusCodes.OK,
+    message: 'Job declined by technician successfully',
+    data: result,
+  });
+});
+
 //get creator added all jobs
 const getCreatorAddedAllJobs = catchAsync(async (req, res, next) => {
   const creatorId = req.user.id;
@@ -174,6 +186,7 @@ export const JobController = {
   rejectJobByCompany,
   deliveredJobByTechnician,
   completeJob,
+  declineJobByTechnician,
   technicianAssignedJob,
-  getCreatorAddedAllJobs
+  getCreatorAddedAllJobs,
 };

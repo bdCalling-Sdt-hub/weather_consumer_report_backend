@@ -1,6 +1,13 @@
 import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 
+export interface IJobDeclineReason {
+  _id?: Types.ObjectId;
+  userId: Types.ObjectId | string;
+  jobId: Types.ObjectId | string;
+  reason: string;
+}
+
 export interface IJob {
   _id: Types.ObjectId;
   creatorId: Types.ObjectId | string;
@@ -13,11 +20,12 @@ export interface IJob {
   jobType: string;
   keyType: string;
   jobDescription: string;
+  jobDeclineReason: IJobDeclineReason[];
   jobDeadline: Date;
   bidTechnician: Types.ObjectId[];
   assignedTechnician: string | null;
   jobBidPrice: number;
-  completedWorkVideo: string ;
+  completedWorkVideo: string;
   jobStatus:
     | 'Pending'
     | 'InProgress'
@@ -26,7 +34,7 @@ export interface IJob {
     | 'Completed'
     | 'Cancelled';
   assignedTechnicianStatus: 'Pending' | 'Accepted' | 'Archived' | 'Rejected';
-  isAssigned: boolean |string;
+  isAssigned: boolean | string;
   isDeleted: boolean;
   stripeInvoiceId?: string | null;
   stripePaymentUrl?: string | null;

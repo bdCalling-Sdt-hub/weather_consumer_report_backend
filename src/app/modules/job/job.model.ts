@@ -1,6 +1,23 @@
 import mongoose, { Schema } from 'mongoose';
-import { IJob, IJobModal } from './job.interface';
+import { IJob, IJobDeclineReason, IJobModal } from './job.interface';
 import paginate from '../plugins/paginate';
+
+const jobDeadlineReasonSchema = new Schema<IJobDeclineReason>({
+  jobId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Job',
+    required: [true, 'Job ID is required'],
+  },
+  userId: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    required: [true, 'User ID is required'],
+  },
+  reason: {
+    type: String,
+    required: [true, 'Reason is required'],
+  },
+});
 
 const jobSchema = new Schema<IJob>(
   {
@@ -41,6 +58,7 @@ const jobSchema = new Schema<IJob>(
       type: String,
       required: [true, 'Key type is required'],
     },
+    jobDeclineReason: [jobDeadlineReasonSchema],
     jobDescription: {
       type: String,
       required: [true, 'Job description is required'],

@@ -7,6 +7,10 @@ const UPLOADS_FOLDER = 'uploads/jobs';
 const upload = fileUploadHandler(UPLOADS_FOLDER);
 const router = Router();
 
+//decline job by technician
+router
+  .route('/decline-job')
+  .post(auth('technician'), JobController.declineJobByTechnician);
 //assign technician
 router
   .route('/assign-technician')
