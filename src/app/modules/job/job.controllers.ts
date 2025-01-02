@@ -3,6 +3,7 @@ import catchAsync from '../../../shared/catchAsync';
 import sendResponse from '../../../shared/sendResponse';
 import { JobService } from './job.services';
 import pick from '../../../shared/pick';
+import ApiError from '../../../errors/ApiError';
 
 const createJob = catchAsync(async (req, res, next) => {
   const creatorId = req.user.id;
@@ -153,6 +154,12 @@ const rejectJobByCompany = catchAsync(async (req, res, next) => {
 const deliveredJobByTechnician = catchAsync(async (req, res, next) => {
   const { jobId } = req.body;
   const file = req.file;
+  if (!file) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Please upload a video file');
+  }
+  if (!file?.mimetype.startsWith('video')) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Please upload a video file');
+  }
   if (file) {
     req.body.completedWorkVideo = '/uploads/jobs/' + file.filename;
   }

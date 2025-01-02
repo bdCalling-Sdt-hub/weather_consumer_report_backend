@@ -46,6 +46,8 @@ router.patch(
   '/profile',
   auth('common'),
   validateRequest(UserValidation.updateUserValidationSchema),
+  upload.single('profileImage'),
+  convertHeicToPngMiddleware(UPLOADS_FOLDER),
   UserController.updateMyProfile
 );
 

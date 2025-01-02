@@ -101,6 +101,9 @@ const fillUpUserDetails = catchAsync(async (req: Request, res: Response) => {
 
 const updateMyProfile = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.id;
+  if (req.file) {
+    req.body.image = '/uploads/users/' + req.file.filename;
+  }
   const result = await UserService.updateMyProfile(userId, req.body);
   return sendResponse(res, {
     code: StatusCodes.OK,
@@ -127,7 +130,7 @@ const changeUserStatus = catchAsync(async (req: Request, res: Response) => {
   await UserService.changeUserStatus(userId, action);
   return sendResponse(res, {
     code: StatusCodes.OK,
-    message : `User ${action}ed successfully.`,
+    message: `User ${action}ed successfully.`,
     data: {},
   });
 });
