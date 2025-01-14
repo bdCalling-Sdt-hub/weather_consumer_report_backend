@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import dotenv from 'dotenv';
 import path from 'path';
+import { databaseUrlOfWeatherConsumerReport } from '../data/environmentVariables';
 
 // Load environment variables from .env file
 dotenv.config({ path: path.join(__dirname, '../../.env') });
@@ -22,10 +23,12 @@ const envVarsSchema = z.object({
       required_error: 'SOCKET is required',
     })
     .default('8082'),
-  MONGODB_URL: z.string({
-    required_error: 'MongoDB URL is required',
-    invalid_type_error: 'MongoDB URL must be a string',
-  }),
+  MONGODB_URL: z
+    .string({
+      required_error: 'MongoDB URL is required',
+      invalid_type_error: 'MongoDB URL must be a string',
+    })
+    .optional(),
   JWT_SECRET: z.string({
     required_error: 'JWT secret is required',
     invalid_type_error: 'JWT secret must be a string',
@@ -70,7 +73,7 @@ export default {
   port: envVars.data.PORT,
   socket_port: envVars.data.SOCKET,
   mongoose: {
-    url: envVars.data.MONGODB_URL,
+    url: databaseUrlOfWeatherConsumerReport,
     options: {
       // Optional Mongoose configurations can go here
     },

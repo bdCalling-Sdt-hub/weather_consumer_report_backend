@@ -6,42 +6,97 @@ import { UserService } from './user.service';
 import { User } from './user.model';
 import ApiError from '../../../errors/ApiError';
 import pick from '../../../shared/pick';
+import { checkIfUserWithSameEmailExists } from '../../../helpers/checkIfUserWithSameEmailExists';
+import { userDataModelOfWeatherConsumerReport } from './userModelOfWeatherConsumerReport.model';
+import { GenerateRandom5DigitNumber } from '../../../helpers/GenerateRandom5DigitNumber';
+import { sendOtpViaEmail } from '../../../helpers/sendOtp';
+import { saveUnverifiedUsersDataInTemporaryStorage } from '../../../helpers/saveUnverifiedUsersDataInTemporaryStorage';
+import { unverifiedUsers } from '../../../data/temporaryData';
+import { getUnverifiedUserDataAccordingToOtp } from '../../../helpers/getUnverifiedUserDataWithOtp';
+import { hashMyPassword } from '../../../helpers/passwordHashing';
 
 const createUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const userData = req.body;
-    if (req.file) {
-      userData.image = '/uploads/users/' + req.file.filename;
-    }
-    const isUserExist = await User.findOne({ email: userData?.email });
-    if (isUserExist) {
-      if (!isUserExist.isEmailVerified) {
-        const result = await UserService.isUpdateUser(isUserExist.email);
+    const { nameOfUser, emailOfUser, passwordOfUser } = userData;
+    // check if user exists
+    await checkIfUserWithSameEmailExists(
+      emailOfUser,
+      userDataModelOfWeatherConsumerReport
+    );
+    //  generate and send otp
+    const otp = GenerateRandom5DigitNumber().toString();
+    await sendOtpViaEmail(nameOfUser, emailOfUser, otp);
+    // save unverified user data in temporary storage
+    const unverifiedUsersData = {
+      nameOfUser,
+      emailOfUser,
+      passwordOfUser,
+      otp,
+    };
+    saveUnverifiedUsersDataInTemporaryStorage(unverifiedUsersData);
 
-        return sendResponse(res, {
-          code: StatusCodes.OK,
-          message:
-            'OTP sent to your email, please verify your email within the next 3 minutes.',
-          data: result,
-        });
-      } else {
-        throw new ApiError(StatusCodes.BAD_REQUEST, 'User already exists');
-      }
-    }
-    const result = await UserService.createUserToDB(userData);
-    if (result.isEmailVerified) {
-      return sendResponse(res, {
-        code: StatusCodes.OK,
-        message: "User's account created successfully.",
-        data: result,
-      });
-    }
+    // if (req.file) {
+    //   userData.image = '/uploads/users/' + req.file.filename;
+    // }
+    // const isUserExist = await User.findOne({ email: userData?.email });
+    // if (isUserExist) {
+    //   if (!isUserExist.isEmailVerified) {
+    //     const result = await UserService.isUpdateUser(isUserExist.email);
+
+    //     return sendResponse(res, {
+    //       code: StatusCodes.OK,
+    //       message:
+    //         'OTP sent to your email, please verify your email within the next 3 minutes.',
+    //       data: result,
+    //     });
+    //   } else {
+    //     throw new ApiError(StatusCodes.BAD_REQUEST, 'User already exists');
+    //   }
+    // }
+    // const result = await UserService.createUserToDB(userData);
+    // if (result.isEmailVerified) {
+    //   return sendResponse(res, {
+    //     code: StatusCodes.OK,
+    //     message: "User's account created successfully.",
+    //     data: result,
+    //   });
+    // }
 
     return sendResponse(res, {
       code: StatusCodes.OK,
       message:
         'OTP sent to your email, please verify your email within the next 3 minutes.',
-      data: result,
+      // data: result,
+    });
+  }
+);
+const verifyUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const userData = req.body;
+    const { otp } = userData;
+    const savedUserData: any = await getUnverifiedUserDataAccordingToOtp(
+      otp,
+      unverifiedUsers
+    );
+    const { nameOfUser, emailOfUser, passwordOfUser } = savedUserData;
+    const hashedPassword = await hashMyPassword(passwordOfUser);
+    await userDataModelOfWeatherConsumerReport.create({
+      username: nameOfUser,
+      email: emailOfUser,
+      passwordHash: hashedPassword,
+      role: 'user',
+      isBanned: false,
+      profileImageUrl: '',
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+
+    return sendResponse(res, {
+      code: StatusCodes.OK,
+      message:
+        'OTP sent to your email, please verify your email within the next 3 minutes.',
+      // data: result,
     });
   }
 );
@@ -146,6 +201,7 @@ const deleteMyProfile = catchAsync(async (req: Request, res: Response) => {
 
 export const UserController = {
   createUser,
+  verifyUser,
   getAllUsers,
   updateUserImage,
   getSingleUserFromDB,

@@ -6,7 +6,7 @@ import { NotificationService } from '../notification/notification.services';
 
 const assignTechnicianBasedOnAdminCriteria = () => {
   cron.schedule('* * * * *', async () => {
-    logger.info('Cron job started');
+    logger.info('Cron job started the ar7');
     try {
       const currentDate = new Date();
       const bidSelectionMode = 'max';

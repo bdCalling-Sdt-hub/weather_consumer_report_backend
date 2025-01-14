@@ -14,14 +14,18 @@ const uploadDrivingLicense = fileUploadHandler(UPLOADS_DRIVING_LICENSE_FOLDER);
 const router = express.Router();
 
 //create user
-router
-  .route('/create-user')
-  .post(
-    auth('admin'),
-    upload.single('profileImage'),
-    convertHeicToPngMiddleware(UPLOADS_FOLDER),
-    UserController.createUser
-  );
+router.route('/create-user').post(
+  // auth('admin'),  someone used auth here but what will we authorize when user is creating account. Does not makes sense
+  // upload.single('profileImage'),
+  // convertHeicToPngMiddleware(UPLOADS_FOLDER),
+  UserController.createUser
+);
+router.route('/verify-user').post(
+  // auth('admin'),  someone used auth here but what will we authorize when user is creating account. Does not makes sense
+  // upload.single('profileImage'),
+  // convertHeicToPngMiddleware(UPLOADS_FOLDER),
+  UserController.verifyUser
+);
 router.post(
   '/profile-image',
   auth('common'),
