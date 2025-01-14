@@ -19,6 +19,7 @@ router.post(
   validateRequest(AuthValidation.loginValidationSchema),
   AuthController.loginIntoDB
 );
+router.post('/login/v2', AuthController.loginController);
 
 router.post('/forgot-password', AuthController.forgotPassword);
 router.post('/resend-otp', AuthController.resendOTP);

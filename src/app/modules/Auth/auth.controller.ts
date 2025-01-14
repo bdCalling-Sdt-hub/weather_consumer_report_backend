@@ -2,6 +2,10 @@ import { StatusCodes } from 'http-status-codes';
 import catchAsync from '../../../shared/catchAsync';
 import sendResponse from '../../../shared/sendResponse';
 import { AuthService } from './auth.service';
+import { userDataModelOfWeatherConsumerReport } from '../user/userModelOfWeatherConsumerReport.model';
+import { checkMyPassword } from '../../../helpers/passwordHashing';
+import { giveAuthenticationToken } from '../../../helpers/jwtAR7';
+import { jwtSecretKey } from '../../../data/environmentVariables';
 
 //login
 const loginIntoDB = catchAsync(async (req, res, next) => {
@@ -10,6 +14,31 @@ const loginIntoDB = catchAsync(async (req, res, next) => {
     code: StatusCodes.OK,
     message: 'Login Successful',
     data: result,
+  });
+});
+// login-v2
+const loginController = catchAsync(async (req, res, next) => {
+  const userData = req.body;
+  const { emailOfUser, passwordOfUser } = userData;
+
+  // check if user exists
+  const savedUserDataInDatabase =
+    await userDataModelOfWeatherConsumerReport.findOne({
+      email: emailOfUser,
+    });
+  if (!savedUserDataInDatabase) {
+    throw Error('User Does Not Exists');
+  }
+  // check if password is correct
+  const { passwordHash } = savedUserDataInDatabase;
+  await checkMyPassword(passwordOfUser, passwordHash);
+  // create json token
+  const authToken = await giveAuthenticationToken(emailOfUser, jwtSecretKey);
+
+  sendResponse(res, {
+    code: StatusCodes.OK,
+    message: 'Login Successful',
+    data: authToken,
   });
 });
 
@@ -86,6 +115,7 @@ const refreshToken = catchAsync(async (req, res, next) => {
 });
 export const AuthController = {
   loginIntoDB,
+  loginController,
   verifyEmail,
   forgotPassword,
   resetPassword,
