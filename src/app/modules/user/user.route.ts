@@ -26,6 +26,7 @@ router.route('/verify-user').post(
   // convertHeicToPngMiddleware(UPLOADS_FOLDER),
   UserController.verifyUser
 );
+router.route('/update-user').put(UserController.updateUser);
 router.post(
   '/profile-image',
   auth('common'),

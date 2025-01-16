@@ -14,6 +14,9 @@ import { saveUnverifiedUsersDataInTemporaryStorage } from '../../../helpers/save
 import { unverifiedUsers } from '../../../data/temporaryData';
 import { getUnverifiedUserDataAccordingToOtp } from '../../../helpers/getUnverifiedUserDataWithOtp';
 import { hashMyPassword } from '../../../helpers/passwordHashing';
+import { getDataFromFormOfRequest } from '../../../helpers/getDataFromFormAR7';
+import { saveFileToFolder } from '../../../helpers/uploadFilesToFolder';
+import refineUrlAr7 from '../../../helpers/refineUrlAr7';
 
 const createUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -91,6 +94,27 @@ const verifyUser = catchAsync(
       createdAt: Date.now(),
       updatedAt: Date.now(),
     });
+
+    return sendResponse(res, {
+      code: StatusCodes.OK,
+      message:
+        'OTP sent to your email, please verify your email within the next 3 minutes.',
+      // data: result,
+    });
+  }
+);
+const updateUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const formData = (await getDataFromFormOfRequest(req)) as any;
+
+    const userImage = formData.files.userImage[0];
+    const imageUrl = (await saveFileToFolder(
+      userImage,
+      './public/images/user_images/'
+    )) as string;
+    const refinedImageUrl = refineUrlAr7(imageUrl);
+    console.log(refinedImageUrl);
+    // will start working from here
 
     return sendResponse(res, {
       code: StatusCodes.OK,
@@ -198,10 +222,22 @@ const deleteMyProfile = catchAsync(async (req: Request, res: Response) => {
     data: {},
   });
 });
+const getHomePageDataForLoggedUsers = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const userData = req.body;
+    return sendResponse(res, {
+      code: StatusCodes.OK,
+      message:
+        'OTP sent to your email, please verify your email within the next 3 minutes.',
+      // data: result,
+    });
+  }
+);
 
 export const UserController = {
   createUser,
   verifyUser,
+  updateUser,
   getAllUsers,
   updateUserImage,
   getSingleUserFromDB,
@@ -210,4 +246,5 @@ export const UserController = {
   fillUpUserDetails,
   deleteMyProfile,
   changeUserStatus,
+  getHomePageDataForLoggedUsers,
 };

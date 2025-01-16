@@ -3,9 +3,21 @@ import catchAsync from '../../../shared/catchAsync';
 import sendResponse from '../../../shared/sendResponse';
 import { AuthService } from './auth.service';
 import { userDataModelOfWeatherConsumerReport } from '../user/userModelOfWeatherConsumerReport.model';
-import { checkMyPassword } from '../../../helpers/passwordHashing';
-import { giveAuthenticationToken } from '../../../helpers/jwtAR7';
-import { jwtSecretKey } from '../../../data/environmentVariables';
+import {
+  checkMyPassword,
+  hashMyPassword,
+} from '../../../helpers/passwordHashing';
+import {
+  giveAuthenticationToken,
+  parseJwtToken,
+} from '../../../helpers/jwtAR7';
+import {
+  frontendAddress,
+  jwtSecretKey,
+} from '../../../data/environmentVariables';
+import { sendResetPasswordLinkToEmail } from '../../../helpers/sendResetPasswordLinkToEmail';
+import { GenerateRandom5DigitNumber } from '../../../helpers/GenerateRandom5DigitNumber';
+import { dataOfResetPasswordRequests } from '../../../data/temporaryData';
 
 //login
 const loginIntoDB = catchAsync(async (req, res, next) => {
@@ -54,6 +66,28 @@ const forgotPassword = catchAsync(async (req, res, next) => {
   });
 });
 
+//forgot password version 2
+
+const forgotPasswordV2 = catchAsync(async (req, res, next) => {
+  const userData = req.body;
+  const { email } = userData;
+  const token = GenerateRandom5DigitNumber().toString();
+  const userRequestData = {
+    email,
+    token,
+  };
+  dataOfResetPasswordRequests.push(userRequestData);
+  const resetLinkForUser = `${frontendAddress}/reset-password/${token}`;
+
+  await sendResetPasswordLinkToEmail(email, resetLinkForUser);
+  sendResponse(res, {
+    code: StatusCodes.OK,
+    message:
+      'OTP sent to your email, please verify your email within the next 3 minutes',
+    // data: result,
+  });
+});
+
 //resend otp
 const resendOTP = catchAsync(async (req, res, next) => {
   const { email } = req.body;
@@ -87,6 +121,27 @@ const resetPassword = catchAsync(async (req, res, next) => {
   });
 });
 
+//reset password v2
+const resetPasswordV2 = catchAsync(async (req, res, next) => {
+  const { token, password } = req.body;
+  const userData = dataOfResetPasswordRequests.filter(
+    (data: any) => data.token === token
+  )[0];
+  const { email } = userData;
+  const newPasswordHash = await hashMyPassword(password);
+
+  await userDataModelOfWeatherConsumerReport.findOneAndUpdate(
+    { email },
+    { passwordHash: newPasswordHash }
+  );
+
+  sendResponse(res, {
+    code: StatusCodes.OK,
+    message: 'Reset Password Successful',
+    data: {},
+  });
+});
+
 //change password
 const changePassword = catchAsync(async (req, res, next) => {
   const userId = req.user.id;
@@ -96,6 +151,23 @@ const changePassword = catchAsync(async (req, res, next) => {
     code: StatusCodes.OK,
     message: 'Change Password Successful',
     data: result,
+  });
+});
+
+// verify token
+const verifyToken = catchAsync(async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  const authToken = authHeader?.split(' ')[1] as string;
+  const userData = (await parseJwtToken(authToken, jwtSecretKey)) as any;
+  const { email } = userData;
+  const savedDataOfUser = (await userDataModelOfWeatherConsumerReport.findOne({
+    email,
+  })) as any;
+  savedDataOfUser.passwordHash = '';
+  sendResponse(res, {
+    code: StatusCodes.OK,
+    message: 'Login Successful',
+    data: savedDataOfUser,
   });
 });
 
@@ -118,8 +190,11 @@ export const AuthController = {
   loginController,
   verifyEmail,
   forgotPassword,
+  forgotPasswordV2,
   resetPassword,
+  resetPasswordV2,
   changePassword,
   refreshToken,
   resendOTP,
+  verifyToken,
 };

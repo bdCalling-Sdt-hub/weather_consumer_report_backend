@@ -22,6 +22,7 @@ router.post(
 router.post('/login/v2', AuthController.loginController);
 
 router.post('/forgot-password', AuthController.forgotPassword);
+router.post('/forgot-password/v2', AuthController.forgotPasswordV2);
 router.post('/resend-otp', AuthController.resendOTP);
 router.post(
   '/verify-email',
@@ -35,8 +36,13 @@ router.post(
   AuthController.resetPassword
 );
 
+router.post('/reset-password/v2', AuthController.resetPasswordV2);
+
 //refresh token
 router.post('/refresh-token', AuthController.refreshToken);
+
+//verify token
+router.post('/verify-token', AuthController.verifyToken);
 
 router.post(
   '/change-password',

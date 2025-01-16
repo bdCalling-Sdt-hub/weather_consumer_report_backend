@@ -11,6 +11,7 @@ import morgan from 'morgan';
 const app = express();
 
 // morgan
+app.use(express.static('./public'));
 app.use(Morgan.successHandler);
 app.use(Morgan.errorHandler);
 app.use(morgan('dev'));
