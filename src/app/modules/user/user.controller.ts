@@ -11,12 +11,23 @@ import { userDataModelOfWeatherConsumerReport } from './userModelOfWeatherConsum
 import { GenerateRandom5DigitNumber } from '../../../helpers/GenerateRandom5DigitNumber';
 import { sendOtpViaEmail } from '../../../helpers/sendOtp';
 import { saveUnverifiedUsersDataInTemporaryStorage } from '../../../helpers/saveUnverifiedUsersDataInTemporaryStorage';
-import { unverifiedUsers } from '../../../data/temporaryData';
+import {
+  dataOfChangingEmailRequest,
+  unverifiedUsers,
+} from '../../../data/temporaryData';
 import { getUnverifiedUserDataAccordingToOtp } from '../../../helpers/getUnverifiedUserDataWithOtp';
-import { hashMyPassword } from '../../../helpers/passwordHashing';
+import {
+  checkMyPassword,
+  hashMyPassword,
+} from '../../../helpers/passwordHashing';
 import { getDataFromFormOfRequest } from '../../../helpers/getDataFromFormAR7';
 import { saveFileToFolder } from '../../../helpers/uploadFilesToFolder';
 import refineUrlAr7 from '../../../helpers/refineUrlAr7';
+import { parseBearerJwtToken } from '../../../helpers/jwtAR7';
+import { jwtSecretKey } from '../../../data/environmentVariables';
+import { sendOtpToVerifyNewEmail } from '../../../helpers/sendOtpToVerifyNewEmail';
+import { getAndParseJwtTokenFromHeader } from '../../../helpers/getAndParseBearerTokenFromHeader';
+import { token } from 'morgan';
 
 const createUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -106,15 +117,133 @@ const verifyUser = catchAsync(
 const updateUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const formData = (await getDataFromFormOfRequest(req)) as any;
+    const { files, fields } = formData;
+    const userImage = files.userImage[0];
+    const authToken = fields.authToken[0];
+    const tokenData = (await parseBearerJwtToken(
+      authToken,
+      jwtSecretKey
+    )) as any;
+    const { email } = tokenData;
+    const emailProvidedByUser = fields.emailOfUser[0];
+    const currentPassword = fields.currentPassword[0];
+    const nameOfUser = fields.nameOfUser[0];
+    const newPassword = fields.newPassword[0];
+    // get user data from database
+    const savedUserDataInDatabase =
+      await userDataModelOfWeatherConsumerReport.findOne({ email });
+    if (!savedUserDataInDatabase) {
+      throw new Error('User Does not Exists');
+    }
+    // check password
+    const hashedPassword = savedUserDataInDatabase.passwordHash;
+    await checkMyPassword(currentPassword, hashedPassword);
 
-    const userImage = formData.files.userImage[0];
-    const imageUrl = (await saveFileToFolder(
-      userImage,
-      './public/images/user_images/'
-    )) as string;
-    const refinedImageUrl = refineUrlAr7(imageUrl);
-    console.log(refinedImageUrl);
-    // will start working from here
+    // save the data directly if email is the old email
+    if (emailProvidedByUser === email) {
+      console.log(nameOfUser);
+      await userDataModelOfWeatherConsumerReport.findOneAndUpdate(
+        { email },
+        { username: nameOfUser }
+      );
+      if (newPassword) {
+        const passwordHashOfNewPassword = await hashMyPassword(newPassword);
+        await userDataModelOfWeatherConsumerReport.findOneAndUpdate(
+          { email },
+          { passwordHash: passwordHashOfNewPassword }
+        );
+      }
+      // update userImage if new userImage selected
+      if (userImage.size !== 0) {
+        const imageUrl = (await saveFileToFolder(
+          userImage,
+          './public/images/user_images/'
+        )) as string;
+        const refinedImageUrl = refineUrlAr7(imageUrl);
+        await userDataModelOfWeatherConsumerReport.findOneAndUpdate(
+          { email },
+          { profileImageUrl: refinedImageUrl }
+        );
+      }
+    } else {
+      const token = GenerateRandom5DigitNumber().toString();
+      let imageUrl2 = null as any;
+      if (userImage.size !== 0) {
+        const imageUrl = (await saveFileToFolder(
+          userImage,
+          './public/images/user_images/'
+        )) as string;
+        const refinedImageUrl = refineUrlAr7(imageUrl);
+        imageUrl2 = refinedImageUrl;
+      }
+      const dataOfUserRequestedToEditProfile = {
+        nameOfUser,
+        imageUrl2,
+        newPassword,
+        oldEmail: email,
+        newEmail: emailProvidedByUser,
+        token,
+      };
+
+      dataOfChangingEmailRequest.push(dataOfUserRequestedToEditProfile);
+      await sendOtpToVerifyNewEmail(nameOfUser, emailProvidedByUser, token);
+    }
+
+    return sendResponse(res, {
+      code: StatusCodes.OK,
+      message:
+        'OTP sent to your email, please verify your email within the next 3 minutes.',
+      // data: result,
+    });
+  }
+);
+const verifyNewEmailOtp = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const parsedTokenData = (await getAndParseJwtTokenFromHeader(
+      req,
+      jwtSecretKey
+    )) as any;
+
+    const { email } = parsedTokenData;
+    const { otp } = req.body;
+
+    const userDataSaved = dataOfChangingEmailRequest.filter(
+      (data: any) => otp === data.token
+    )[0];
+    if (!userDataSaved) {
+      throw new Error('Invalid Otp');
+    }
+    const { nameOfUser, imageUrl2, newPassword, oldEmail, newEmail, token } =
+      userDataSaved;
+    console.log(userDataSaved);
+    if (email !== oldEmail) {
+      throw new Error('User who is requesting is not Permitted to do this.');
+    }
+
+    await userDataModelOfWeatherConsumerReport.findOneAndUpdate(
+      {
+        email,
+      },
+      { username: nameOfUser, email: newEmail }
+    );
+    //  email is changed to new email so we need to search by new email from here
+    if (imageUrl2) {
+      await userDataModelOfWeatherConsumerReport.findOneAndUpdate(
+        {
+          email: newEmail,
+        },
+        { profileImageUrl: imageUrl2 }
+      );
+    }
+    if (newPassword) {
+      const newPasswordHash = await hashMyPassword(newPassword);
+      await userDataModelOfWeatherConsumerReport.findOneAndUpdate(
+        {
+          email: newEmail,
+        },
+        { passwordHash: newPasswordHash }
+      );
+    }
 
     return sendResponse(res, {
       code: StatusCodes.OK,
@@ -129,6 +258,7 @@ const getAllUsers = catchAsync(async (req: Request, res: Response) => {
   const filters = pick(req.query, ['searchTerm', 'email', 'role', 'fullName']);
   const options = pick(req.query, ['sortBy', 'page', 'limit', 'populate']);
   const users = await UserService.getAllUsersFromDB(filters, options);
+
   return sendResponse(res, {
     code: StatusCodes.OK,
     message: 'Users retrieved successfully.',
@@ -247,4 +377,5 @@ export const UserController = {
   deleteMyProfile,
   changeUserStatus,
   getHomePageDataForLoggedUsers,
+  verifyNewEmailOtp,
 };

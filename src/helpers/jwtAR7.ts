@@ -26,3 +26,16 @@ export const parseJwtToken = (token: string, secretKey: string) => {
     }
   });
 };
+
+export const parseBearerJwtToken = (token: string, secretKey: string) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      token = token.split(' ')[1];
+      const data = (await jwt.verify(token, secretKey)) as any;
+      resolve(data);
+    } catch (error) {
+      console.log(error);
+      reject(error);
+    }
+  });
+};

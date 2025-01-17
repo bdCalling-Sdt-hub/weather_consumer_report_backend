@@ -27,6 +27,7 @@ router.route('/verify-user').post(
   UserController.verifyUser
 );
 router.route('/update-user').put(UserController.updateUser);
+router.route('/verify-new-email-otp').post(UserController.verifyNewEmailOtp);
 router.post(
   '/profile-image',
   auth('common'),
