@@ -6,6 +6,7 @@ import { getReviewsDataForAdminController } from '../controller/getReviewsData.c
 import { adminSignInController } from '../controller/signIn.controller';
 import { adminForgotPasswordController } from '../controller/forgotPassword.controller';
 import { verifyForgotPasswordOtpController } from '../controller/verifyForgotPasswordOtp.controller';
+import { changeAdminPasswordController } from '../controller/changePasswordOfAdmin.controller';
 
 const adminRouterV2 = express.Router();
 
@@ -20,5 +21,6 @@ adminRouterV2.post(
   '/verify-forgot-password-otp',
   verifyForgotPasswordOtpController
 );
+adminRouterV2.post('/change-admin-password', changeAdminPasswordController);
 
 export { adminRouterV2 };

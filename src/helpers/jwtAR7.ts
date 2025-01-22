@@ -14,8 +14,8 @@ export const giveAuthenticationToken = (email: string, secretKey: string) => {
     }
   });
 };
-
-export const parseJwtToken = (token: string, secretKey: string) => {
+type parseJwtTokenType = (token: string, secretKey: string) => Promise<any>;
+export const parseJwtToken: parseJwtTokenType = (token, secretKey) => {
   return new Promise(async (resolve, reject) => {
     try {
       const data = await jwt.verify(token, secretKey);

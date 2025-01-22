@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 import { myControllerHandler } from '../../../../utils/controller/myControllerHandler.utils';
-import sendResponse from '../../../../shared/sendResponse';
+import sendResponse, { sendResponse2 } from '../../../../shared/sendResponse';
 import { userDataModelOfWeatherConsumerReport } from '../../user/userModelOfWeatherConsumerReport.model';
 import { checkMyPassword } from '../../../../helpers/passwordHashing';
 import { giveAuthenticationToken } from '../../../../helpers/jwtAR7';
@@ -23,12 +23,14 @@ export const adminSignInController = myControllerHandler(async (req, res) => {
     throw new Error('The user who requested is not admin');
   }
 
+  userData.passwordHash = '';
   const authToken = await giveAuthenticationToken(email, jwtSecretKey);
   const bearerToken = `Bearer ${authToken}`;
 
-  sendResponse(res, {
+  sendResponse2(res, {
     code: StatusCodes.OK,
-    message: 'Review Given Successfully',
-    data: bearerToken,
+    message: 'Admin Login Successfull',
+    data: [userData],
+    token: bearerToken,
   });
 });
