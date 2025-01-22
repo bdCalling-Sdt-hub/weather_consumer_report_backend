@@ -163,6 +163,7 @@ const verifyToken = catchAsync(async (req, res, next) => {
   const savedDataOfUser = (await userDataModelOfWeatherConsumerReport.findOne({
     email,
   })) as any;
+  // wipe pasword hash
   savedDataOfUser.passwordHash = '';
   sendResponse(res, {
     code: StatusCodes.OK,

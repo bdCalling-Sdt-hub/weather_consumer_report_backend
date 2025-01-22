@@ -7,6 +7,8 @@ import { UserRoutes } from '../app/modules/user/user.route';
 import { JobRoutes } from '../app/modules/job/job.routes';
 import { BidJobRoutes } from '../app/modules/bidJob/bidJob.routes';
 import { NotificationRoutes } from '../app/modules/notification/notification.routes';
+import { reviewRouter } from '../app/modules/review/route/review.route';
+import { adminRouterV2 } from '../app/modules/admin-v2/route/adminV2.route';
 const router = express.Router();
 
 const apiRoutes = [
@@ -14,6 +16,11 @@ const apiRoutes = [
     path: '/admin',
     route: AdminRoutes,
   },
+  {
+    path: '/admin/v2',
+    route: adminRouterV2,
+  },
+
   {
     path: '/auth',
     route: AuthRoutes,
@@ -42,6 +49,7 @@ const apiRoutes = [
     path: '/contact',
     route: ContactRoutes,
   },
+  { path: '/review', route: reviewRouter },
 ];
 
 apiRoutes.forEach(route => router.use(route.path, route.route));

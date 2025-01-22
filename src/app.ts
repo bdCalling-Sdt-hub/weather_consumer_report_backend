@@ -35,7 +35,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use('/api/v1', router);
 
 // live response
-app.get('/test', (req: Request, res: Response) => {
+app.get('/', (req: Request, res: Response) => {
   res.status(201).json({ message: 'Express server started' });
 });
 

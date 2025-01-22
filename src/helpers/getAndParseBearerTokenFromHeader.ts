@@ -1,6 +1,11 @@
 import { parseJwtToken } from './jwtAR7';
 
-export const getAndParseJwtTokenFromHeader = (
+type fType = (
+  req: any,
+  jwtSecretKey: any
+) => Promise<{ iat: number; exp: number; [key: string]: any }>;
+
+export const getAndParseJwtTokenFromHeader: fType = (
   req: any,
   jwtSecretKey: string
 ) => {
