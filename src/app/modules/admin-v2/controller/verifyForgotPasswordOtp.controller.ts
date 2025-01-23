@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 import { myControllerHandler } from '../../../../utils/controller/myControllerHandler.utils';
-import sendResponse from '../../../../shared/sendResponse';
+import sendResponse, { sendResponse2 } from '../../../../shared/sendResponse';
 import { dataOfResetPasswordRequests } from '../../../../data/temporaryData';
 import { hashMyPassword } from '../../../../helpers/passwordHashing';
 import { userDataModelOfWeatherConsumerReport } from '../../user/userModelOfWeatherConsumerReport.model';
@@ -17,15 +17,16 @@ export const verifyForgotPasswordOtpController = myControllerHandler(
       throw new Error('Otp Not Valid');
     }
     const { email } = userData;
-    const token = await giveAuthenticationToken(
+    const token = (await giveAuthenticationToken(
       email,
       adminChangingPasswordJwtSecretKey
-    );
+    )) as any;
 
-    sendResponse(res, {
+    sendResponse2(res, {
       code: StatusCodes.OK,
-      message: 'Token to send Password given successfully',
-      data: token,
+      message: 'Otp Verified Successful',
+      data: [userData],
+      token: token,
     });
   }
 );

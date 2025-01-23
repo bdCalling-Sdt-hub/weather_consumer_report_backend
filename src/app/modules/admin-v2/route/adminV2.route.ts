@@ -7,6 +7,8 @@ import { adminSignInController } from '../controller/signIn.controller';
 import { adminForgotPasswordController } from '../controller/forgotPassword.controller';
 import { verifyForgotPasswordOtpController } from '../controller/verifyForgotPasswordOtp.controller';
 import { changeAdminPasswordController } from '../controller/changePasswordOfAdmin.controller';
+import { removeProductController } from '../controller/removeProduct.controller';
+import { changePasswordController2 } from '../controller/changePassword2.controller';
 
 const adminRouterV2 = express.Router();
 
@@ -22,5 +24,7 @@ adminRouterV2.post(
   verifyForgotPasswordOtpController
 );
 adminRouterV2.post('/change-admin-password', changeAdminPasswordController);
+adminRouterV2.post('/change-admin-password-2', changePasswordController2);
+adminRouterV2.post('/remove-product', removeProductController);
 
 export { adminRouterV2 };

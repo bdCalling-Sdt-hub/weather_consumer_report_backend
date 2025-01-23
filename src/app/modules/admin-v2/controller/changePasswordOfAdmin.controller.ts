@@ -9,6 +9,7 @@ import { userDataModelOfWeatherConsumerReport } from '../../user/userModelOfWeat
 export const changeAdminPasswordController = myControllerHandler(
   async (req, res) => {
     const { jwtToken, newPassword } = req.body;
+    console.log(req.body);
     const { email } = await parseJwtToken(
       jwtToken,
       adminChangingPasswordJwtSecretKey

@@ -2,7 +2,10 @@ import { StatusCodes } from 'http-status-codes';
 import { myControllerHandler } from '../../../../utils/controller/myControllerHandler.utils';
 import sendResponse from '../../../../shared/sendResponse';
 import { userDataModelOfWeatherConsumerReport } from '../../user/userModelOfWeatherConsumerReport.model';
-import { GenerateRandom5DigitNumber } from '../../../../helpers/GenerateRandom5DigitNumber';
+import {
+  GenerateRandom5DigitNumber,
+  GenerateRandom6DigitNumber,
+} from '../../../../helpers/GenerateRandom5DigitNumber';
 import { dataOfResetPasswordRequests } from '../../../../data/temporaryData';
 import { sendPasswordResetOtpViaEmail } from '../../../../helpers/sendPasswordResetOtpViaEmail';
 
@@ -17,7 +20,7 @@ export const adminForgotPasswordController = myControllerHandler(
     }
 
     const { username } = userData;
-    const otp = GenerateRandom5DigitNumber().toString();
+    const otp = GenerateRandom6DigitNumber().toString();
     const temporaryUserData = { email, otp, createdAt: Date.now() };
     dataOfResetPasswordRequests.push(temporaryUserData);
 
