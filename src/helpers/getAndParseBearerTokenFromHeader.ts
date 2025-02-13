@@ -1,4 +1,5 @@
 import { parseJwtToken } from './jwtAR7';
+import { refineToken } from './refineToken';
 
 type fType = (
   req: any,
@@ -12,7 +13,7 @@ export const getAndParseJwtTokenFromHeader: fType = (
   return new Promise(async (resolve, reject) => {
     try {
       const authHeader = req.headers.authorization;
-      const authToken = authHeader?.split(' ')[1] as string;
+      const authToken = refineToken(authHeader) as any;
       const userData = (await parseJwtToken(authToken, jwtSecretKey)) as any;
       resolve(userData);
     } catch (error) {

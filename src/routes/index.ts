@@ -9,6 +9,8 @@ import { BidJobRoutes } from '../app/modules/bidJob/bidJob.routes';
 import { NotificationRoutes } from '../app/modules/notification/notification.routes';
 import { reviewRouter } from '../app/modules/review/route/review.route';
 import { adminRouterV2 } from '../app/modules/admin-v2/route/adminV2.route';
+import { productRouter } from '../app/modules/products/route/product.route';
+import { categoryRouter } from '../app/modules/category/route/category.route';
 const router = express.Router();
 
 const apiRoutes = [
@@ -50,6 +52,14 @@ const apiRoutes = [
     route: ContactRoutes,
   },
   { path: '/review', route: reviewRouter },
+  {
+    path: '/product',
+    route: productRouter,
+  },
+  {
+    path: '/category',
+    route: categoryRouter,
+  },
 ];
 
 apiRoutes.forEach(route => router.use(route.path, route.route));

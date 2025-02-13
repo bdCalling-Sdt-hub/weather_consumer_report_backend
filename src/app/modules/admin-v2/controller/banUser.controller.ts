@@ -8,9 +8,13 @@ import { jwtSecretKey } from '../../../../data/environmentVariables';
 export const banUserController = myControllerHandler(async (req, res) => {
   await checkIfUserRequestingAdmin(req, jwtSecretKey);
   const { userId } = req.body;
-  await userDataModelOfWeatherConsumerReport.findByIdAndUpdate(userId, {
-    isBanned: true,
-  });
+  console.log(userId);
+  await userDataModelOfWeatherConsumerReport.findOneAndUpdate(
+    { id: userId },
+    {
+      isBanned: true,
+    }
+  );
   sendResponse(res, {
     code: StatusCodes.OK,
     message: 'User Banned Successfully',

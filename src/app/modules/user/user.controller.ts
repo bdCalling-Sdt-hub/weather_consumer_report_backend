@@ -49,34 +49,6 @@ const createUser = catchAsync(
       otp,
     };
     saveUnverifiedUsersDataInTemporaryStorage(unverifiedUsersData);
-
-    // if (req.file) {
-    //   userData.image = '/uploads/users/' + req.file.filename;
-    // }
-    // const isUserExist = await User.findOne({ email: userData?.email });
-    // if (isUserExist) {
-    //   if (!isUserExist.isEmailVerified) {
-    //     const result = await UserService.isUpdateUser(isUserExist.email);
-
-    //     return sendResponse(res, {
-    //       code: StatusCodes.OK,
-    //       message:
-    //         'OTP sent to your email, please verify your email within the next 3 minutes.',
-    //       data: result,
-    //     });
-    //   } else {
-    //     throw new ApiError(StatusCodes.BAD_REQUEST, 'User already exists');
-    //   }
-    // }
-    // const result = await UserService.createUserToDB(userData);
-    // if (result.isEmailVerified) {
-    //   return sendResponse(res, {
-    //     code: StatusCodes.OK,
-    //     message: "User's account created successfully.",
-    //     data: result,
-    //   });
-    // }
-
     return sendResponse(res, {
       code: StatusCodes.OK,
       message:

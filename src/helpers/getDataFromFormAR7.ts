@@ -1,6 +1,8 @@
 import formidable from 'formidable';
 
-export const getDataFromFormOfRequest = (req: any) => {
+type getDataFromFormOfRequestType = (req: any) => Promise<any>;
+
+export const getDataFromFormOfRequest: getDataFromFormOfRequestType = req => {
   return new Promise(async (resolve, reject) => {
     try {
       const form = formidable({

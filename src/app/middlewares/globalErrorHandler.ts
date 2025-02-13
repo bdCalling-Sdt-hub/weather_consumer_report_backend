@@ -8,81 +8,62 @@ import { errorLogger } from '../../shared/logger';
 import { IErrorMessage } from '../../types/errors.types';
 
 const globalErrorHandler: ErrorRequestHandler = (error, req, res, next) => {
-  // Log error
-  config.env === 'development'
-    ? console.log('🚨 globalErrorHandler ~~ ', error)
-    : errorLogger.error('🚨 globalErrorHandler ~~ ', error);
+  // Log error based on environment
+  if (config.env === 'development') {
+    console.log('🚨 globalErrorHandler ~~ ', error);
+  } else {
+    errorLogger.error('🚨 globalErrorHandler ~~ ', error);
+  }
 
   let code = 500;
-  let message = 'Something went wrong';
+  let message = error.message || 'Something went wrong';
   let errorMessages: IErrorMessage[] = [];
-  let icon = '❌'; // Default icon
 
-  // Handle ZodError
+  // Handle Zod Validation Error
   if (error.name === 'ZodError') {
     const simplifiedError = handleZodError(error);
-    code = simplifiedError.code;
-    message = `${simplifiedError.errorMessages
-      .map(err => err.message)
-      .join(', ')}`;
+    code = 400;
+    message = simplifiedError.errorMessages.map(err => err.message).join(', ');
     errorMessages = simplifiedError.errorMessages;
   }
-  // Handle ValidationError (e.g., Mongoose)
+  // Handle Mongoose ValidationError
   else if (error.name === 'ValidationError') {
     const simplifiedError = handleValidationError(error);
-    code = simplifiedError.code;
-    message = `${simplifiedError.errorMessages
-      .map(err => err.message)
-      .join(', ')}`;
+    code = 400;
+    message = simplifiedError.errorMessages.map(err => err.message).join(', ');
     errorMessages = simplifiedError.errorMessages;
   }
-  // Handle DuplicateError (e.g., from database unique constraint violation)
-  else if (error.name === 'DuplicateError') {
+  // Handle MongoDB Duplicate Key Error
+  else if (error.code === 11000 || error.code === 11001) {
     const simplifiedError = handleDuplicateError(error);
-    code = simplifiedError.code;
-    message = `${simplifiedError.errorMessages
-      .map(err => err.message)
-      .join(', ')}`;
+    code = 409; // Conflict
+    message = simplifiedError.errorMessages.map(err => err.message).join(', ');
     errorMessages = simplifiedError.errorMessages;
   }
-  // Handle ApiError (custom error type)
+  // Handle Custom API Error
   else if (error instanceof ApiError) {
-    code = error.code;
+    code = error.code || 500;
     message = error.message || 'Something went wrong';
-    errorMessages = error.message
-      ? [
-          {
-            path: '',
-            message: error.message,
-          },
-        ]
-      : [];
+    errorMessages = error.message ? [{ path: '', message: error.message }] : [];
   }
-  // Handle other general errors
+  // Handle General Errors
   else if (error instanceof Error) {
     message = error.message || 'Internal Server Error';
-    errorMessages = error.message
-      ? [
-          {
-            path: '',
-            message: error.message,
-          },
-        ]
-      : [];
+    errorMessages = error.message ? [{ path: '', message: error.message }] : [];
+  }
+  // Handle Unknown Errors
+  else {
+    message = typeof error === 'string' ? error : JSON.stringify(error);
+    errorMessages = [{ path: '', message }];
   }
 
-  // Format multiple error messages as a comma-separated list in the message field
-  const formattedMessage =
-    errorMessages.length > 1
-      ? errorMessages.map(err => err.message).join(', ')
-      : message;
-
-  // Send response with statusCode, success, message, and error
+  // Send response
   res.status(code).json({
     code,
-    message: `${formattedMessage}`,
-    error: errorMessages, // Error details (path and message)
-    stack: config.env === 'development' ? error?.stack : undefined, // Stack trace in development mode
+    success: false,
+    message,
+    errors: errorMessages, // Detailed error messages
+    stack: config.env === 'development' ? error?.stack : undefined, // Stack trace only in development
   });
 };
 
