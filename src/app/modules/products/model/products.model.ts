@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { ar7id } from '../../../../utils/unique_id/ar7id';
+import { number } from 'zod';
 
 const productSchema = new mongoose.Schema(
   {
@@ -20,6 +21,9 @@ const productSchema = new mongoose.Schema(
     productLocation: { type: String, required: false },
     productImageUrl: { type: String, required: true },
     moreImagesUrl: { type: [String], default: [] },
+    price: { type: Number, required: true },
+    currencyOfPrice: { type: String, default: 'usd', enum: ['usd'] },
+    stockStatus: { type: String, required: true },
   },
   { timestamps: true }
 );

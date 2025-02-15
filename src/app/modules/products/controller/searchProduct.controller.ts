@@ -7,13 +7,13 @@ import { jwtSecretKey } from '../../../../data/environmentVariables';
 import { myProductModel } from '../model/products.model';
 
 export const searchProductController = myControllerHandler(async (req, res) => {
-  await checkIfUserRequestingAdmin(req, jwtSecretKey);
   const myData = req.params;
   const { search_text } = myData;
   const productsData = await myProductModel.find({
     $or: [
       { name: { $regex: search_text, $options: 'i' } },
       { id: { $regex: search_text, $options: 'i' } },
+      { category: { $regex: search_text, $options: 'i' } },
     ],
   });
   const myResponse = {

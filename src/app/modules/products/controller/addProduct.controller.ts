@@ -11,6 +11,7 @@ export const addProductController = myControllerHandler(async (req, res) => {
   const authData = await getAndParseJwtTokenFromHeader(req, jwtSecretKey);
   const myData = await getDataFromFormOfRequest(req);
   const { email } = authData;
+
   const userData = await userDataModelOfWeatherConsumerReport.findOne({
     email,
   });
@@ -22,6 +23,9 @@ export const addProductController = myControllerHandler(async (req, res) => {
   dataToSave.name = myData.fields.product_name[0];
   dataToSave.category = myData.fields.product_category[0];
   dataToSave.description = myData.fields.product_description[0];
+  dataToSave.price = myData.fields.product_price[0];
+  dataToSave.currencyOfPrice = myData.fields.product_price_currency[0];
+  dataToSave.stockStatus = myData.fields.stock_status[0];
   const productLink = myData.fields.product_link;
   if (productLink) {
     dataToSave.productLink = productLink[0];
