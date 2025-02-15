@@ -11,6 +11,8 @@ import { reviewRouter } from '../app/modules/review/route/review.route';
 import { adminRouterV2 } from '../app/modules/admin-v2/route/adminV2.route';
 import { productRouter } from '../app/modules/products/route/product.route';
 import { categoryRouter } from '../app/modules/category/route/category.route';
+import { advertisementRouter } from '../app/modules/advertisement/route/advertisement.route';
+import { generalInfoRouter } from '../app/modules/general_info/route/generalInfo.model';
 const router = express.Router();
 
 const apiRoutes = [
@@ -59,6 +61,14 @@ const apiRoutes = [
   {
     path: '/category',
     route: categoryRouter,
+  },
+  {
+    path: '/advertisement',
+    route: advertisementRouter,
+  },
+  {
+    path: '/general-info',
+    route: generalInfoRouter,
   },
 ];
 

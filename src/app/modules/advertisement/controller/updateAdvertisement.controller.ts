@@ -5,40 +5,36 @@ import { checkIfUserRequestingAdmin } from '../../../../helpers/checkIfRequested
 import { jwtSecretKey } from '../../../../data/environmentVariables';
 
 import { saveAndGiveRefinedUrl } from '../../../../helpers/saveAndGiveRefinedLink';
-import { assetCategoryModel } from '../model/category.model';
+import { advertisementModel } from '../model/advertisement.model';
 
-export const updateCategoryController = myControllerHandler(
+export const updateAdvertisementController = myControllerHandler(
   async (req, res) => {
     await checkIfUserRequestingAdmin(req, jwtSecretKey);
     const { id } = req.params;
 
     const myData = await getDataFromFormOfRequest(req);
     const updatedData = {} as any;
-    const categoryName = myData.fields.category_name;
-    const categoryImage = myData.files.category_image;
-    if (categoryName) {
-      if (categoryName[0]) {
-        updatedData.categoryName = categoryName[0];
+    const name = myData.fields.name;
+    const link = myData.fields.link;
+    if (name) {
+      if (name[0]) {
+        updatedData.name = name[0];
       }
     }
-    if (categoryImage) {
-      if (!(categoryImage[0].size > 0)) {
-        return;
+    if (link) {
+      if (link[0]) {
+        updatedData.link = link[0];
       }
-      const categoryImageUrl = await saveAndGiveRefinedUrl(
-        categoryImage[0],
-        './public/images/category'
-      );
-      updatedData.categoryImageUrl = categoryImageUrl;
     }
 
-    await assetCategoryModel.findOneAndUpdate({ id }, updatedData);
+    await advertisementModel.findOneAndUpdate({ id }, updatedData);
 
     const myResponse = {
-      message: 'Category Updated Successfully',
+      message: 'Advertisement Updated Successfully',
       success: true,
       data: {},
     };
     res.status(StatusCodes.OK).json(myResponse);
   }
 );
+//

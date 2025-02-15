@@ -9,6 +9,10 @@ const productSchema = new mongoose.Schema(
       unique: true,
       default: () => 'product_' + ar7id(),
     },
+    ownerId: {
+      type: String,
+      required: true,
+    },
     category: { type: String, required: false },
     name: { type: String, required: true },
     description: { type: String, required: true },

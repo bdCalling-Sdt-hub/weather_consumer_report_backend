@@ -9,12 +9,17 @@ import { verifyForgotPasswordOtpController } from '../controller/verifyForgotPas
 import { changeAdminPasswordController } from '../controller/changePasswordOfAdmin.controller';
 import { removeProductController } from '../controller/removeProduct.controller';
 import { changePasswordController2 } from '../controller/changePassword2.controller';
+import { getProductDataController } from '../controller/getProductData.controller';
+import { searchUserDataController } from '../controller/searchUserData.controller';
+import { updateProfileController } from '../controller/updateProfile.controller';
+import { updateGeneralInfoController } from '../controller/updateGeneralInfo.controller';
 
 const adminRouterV2 = express.Router();
 
 adminRouterV2.post('/sign-in', adminSignInController);
 adminRouterV2.get('/get-dashboard-data', getAdminDashboardDataController);
 adminRouterV2.get('/get-user-data', getUserDataController);
+adminRouterV2.get('/user/:search_text', searchUserDataController);
 adminRouterV2.post('/ban-user', banUserController);
 adminRouterV2.get('/get-reviews-data', getReviewsDataForAdminController);
 adminRouterV2.post('/remove-reviews-data', getReviewsDataForAdminController);
@@ -25,6 +30,8 @@ adminRouterV2.post(
 );
 adminRouterV2.post('/change-admin-password', changeAdminPasswordController);
 adminRouterV2.post('/change-admin-password-2', changePasswordController2);
+adminRouterV2.get('/product', getProductDataController);
 adminRouterV2.post('/remove-product', removeProductController);
-
+adminRouterV2.patch('/update-profile', updateProfileController);
+adminRouterV2.post('/general-info/update/:name', updateGeneralInfoController);
 export { adminRouterV2 };
