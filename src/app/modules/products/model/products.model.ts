@@ -18,7 +18,7 @@ const productSchema = new mongoose.Schema(
     name: { type: String, required: true },
     description: { type: String, required: true },
     productLink: { type: String, required: false },
-    productLocation: { type: String, required: false },
+    productLocation: { type: String, required: true },
     productImageUrl: { type: String, required: true },
     moreImagesUrl: { type: [String], default: [] },
     price: { type: Number, required: true },

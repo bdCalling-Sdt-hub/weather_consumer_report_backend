@@ -13,6 +13,9 @@ import { getProductDataController } from '../controller/getProductData.controlle
 import { searchUserDataController } from '../controller/searchUserData.controller';
 import { updateProfileController } from '../controller/updateProfile.controller';
 import { updateGeneralInfoController } from '../controller/updateGeneralInfo.controller';
+import { banUserManikController } from '../controller/banUserManik.controller';
+import { unBanUserManikController } from '../controller/unbanUserManik.controller';
+import { getOwnProfileDataController } from '../controller/getOwnProfileData.controller';
 
 const adminRouterV2 = express.Router();
 
@@ -21,6 +24,8 @@ adminRouterV2.get('/get-dashboard-data', getAdminDashboardDataController);
 adminRouterV2.get('/get-user-data', getUserDataController);
 adminRouterV2.get('/user/:search_text', searchUserDataController);
 adminRouterV2.post('/ban-user', banUserController);
+adminRouterV2.patch('/ban-user/:manik', banUserManikController);
+adminRouterV2.patch('/unban-user/:manik', unBanUserManikController);
 adminRouterV2.get('/get-reviews-data', getReviewsDataForAdminController);
 adminRouterV2.post('/remove-reviews-data', getReviewsDataForAdminController);
 adminRouterV2.post('/forgot-password', adminForgotPasswordController);
@@ -34,4 +39,5 @@ adminRouterV2.get('/product', getProductDataController);
 adminRouterV2.post('/remove-product', removeProductController);
 adminRouterV2.patch('/update-profile', updateProfileController);
 adminRouterV2.post('/general-info/update/:name', updateGeneralInfoController);
+adminRouterV2.get('/get-own-profile-data', getOwnProfileDataController);
 export { adminRouterV2 };

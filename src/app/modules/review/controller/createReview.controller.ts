@@ -17,10 +17,10 @@ export const createReviewController = myControllerHandler(async (req, res) => {
   if (!userData) {
     throw new Error('User Does Not Exists');
   }
-  const { _id } = userData;
+  const { id } = userData;
 
   await reviewDataModelOfWeatherConsumerReport.create({
-    userId: _id,
+    userId: id,
     productId: productId,
     rating: rating,
     reviewText: comment,

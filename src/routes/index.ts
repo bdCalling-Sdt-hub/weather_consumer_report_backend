@@ -13,6 +13,10 @@ import { productRouter } from '../app/modules/products/route/product.route';
 import { categoryRouter } from '../app/modules/category/route/category.route';
 import { advertisementRouter } from '../app/modules/advertisement/route/advertisement.route';
 import { generalInfoRouter } from '../app/modules/general_info/route/generalInfo.model';
+import { reviewReactionRouter } from '../app/modules/review-reaction/route/reviewReaction.route';
+import { replyOfReviewRouter } from '../app/modules/review-reply/route/replyOfReview.route';
+import { contactUsRouter } from '../app/modules/contact-us/route/contactus.route';
+import { locationRouter } from '../app/modules/location/route/contactus.route';
 const router = express.Router();
 
 const apiRoutes = [
@@ -69,6 +73,22 @@ const apiRoutes = [
   {
     path: '/general-info',
     route: generalInfoRouter,
+  },
+  {
+    path: '/review-reaction',
+    route: reviewReactionRouter,
+  },
+  {
+    path: '/reply-of-review',
+    route: replyOfReviewRouter,
+  },
+  {
+    path: '/contact',
+    route: contactUsRouter,
+  },
+  {
+    path: '/location',
+    route: locationRouter,
   },
 ];
 

@@ -37,7 +37,9 @@ export const updateCategoryController = myControllerHandler(
     const myResponse = {
       message: 'Category Updated Successfully',
       success: true,
-      data: {},
+      data: {
+        success: true,
+      },
     };
     res.status(StatusCodes.OK).json(myResponse);
   }

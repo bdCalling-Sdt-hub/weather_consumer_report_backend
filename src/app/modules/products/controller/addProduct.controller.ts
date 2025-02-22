@@ -55,11 +55,11 @@ export const addProductController = myControllerHandler(async (req, res) => {
     }
   }
 
-  await myProductModel.create(dataToSave);
+  const productData = await myProductModel.create(dataToSave);
   const myResponse = {
     message: 'Review Given Successfully',
     success: true,
-    data: {},
+    data: productData,
   };
   res.status(StatusCodes.OK).json(myResponse);
 });
