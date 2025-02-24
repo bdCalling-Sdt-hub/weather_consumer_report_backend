@@ -13,10 +13,11 @@ const assetCategorySchema = new mongoose.Schema(
     categoryName: {
       type: String,
       required: true,
+      unique: true,
     },
     categoryImageUrl: {
       type: String,
-      required: true,
+      required: false,
     },
   },
   { timestamps: true }
