@@ -13,3 +13,5 @@ export const stripeSecretKey =
   'sk_test_51Qk1iMFxqeIeIgIvD07l65DZLJewZBAcDLgYrE5K4twe8Ji51rnXZBKBvMBIzWuZC4AAx3HeW1WRsCKNoRCP8Zq100RvHQ6Nkg';
 export const ownerEmail = 'apurboroy7077@gmail.com';
 export const googleMapApiKey = process.env.GOOGLE_MAP_API_KEY;
+export const CONTACT_EMAIL_1 = 'cweathers@accountabilityworld.net';
+export const CONTACT_EMAIL_2 = 'info@accountabilityworld.net';
