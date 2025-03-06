@@ -16,6 +16,7 @@ import { updateGeneralInfoController } from '../controller/updateGeneralInfo.con
 import { banUserManikController } from '../controller/banUserManik.controller';
 import { unBanUserManikController } from '../controller/unbanUserManik.controller';
 import { getOwnProfileDataController } from '../controller/getOwnProfileData.controller';
+import { getSettingsDataController } from '../controller/getSettingsData.controller';
 
 const adminRouterV2 = express.Router();
 
@@ -40,4 +41,5 @@ adminRouterV2.post('/remove-product', removeProductController);
 adminRouterV2.patch('/update-profile', updateProfileController);
 adminRouterV2.post('/general-info/update/:name', updateGeneralInfoController);
 adminRouterV2.get('/get-own-profile-data', getOwnProfileDataController);
+adminRouterV2.get('/get-settings-data', getSettingsDataController);
 export { adminRouterV2 };

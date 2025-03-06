@@ -25,9 +25,12 @@ export const getReportDataController = myControllerHandler(async (req, res) => {
 
   const arrayOfIdOfProductReported = [];
   const arrayOfIdOfReviewReported = [];
+  const arrayOfIdOfUserWhoReported = [];
 
   for (let i = 0; i < refinedReportData.length; i++) {
     const singleReportData = refinedReportData[i];
+    const idOfUserWhoReported = singleReportData.idOfReporter;
+    arrayOfIdOfUserWhoReported.push(idOfUserWhoReported);
     if (singleReportData.type === 'product') {
       arrayOfIdOfProductReported.push(singleReportData.idOfReportedParty);
     } else if (singleReportData.type === 'review') {
@@ -35,6 +38,12 @@ export const getReportDataController = myControllerHandler(async (req, res) => {
     }
   }
 
+  const dataOfUsersWhoReported =
+    await userDataModelOfWeatherConsumerReport.find({
+      id: {
+        $in: arrayOfIdOfUserWhoReported,
+      },
+    });
   const dataOfReportedProduct = await myProductModel.find({
     id: { $in: arrayOfIdOfProductReported },
   });
@@ -45,15 +54,24 @@ export const getReportDataController = myControllerHandler(async (req, res) => {
 
   for (let i = 0; i < refinedReportData.length; i++) {
     const singleReportedData: any = refinedReportData[i];
+    for (let i = 0; i < dataOfUsersWhoReported.length; i++) {
+      const singleUserData = dataOfUsersWhoReported[i];
+      if (singleUserData.id === singleReportedData.idOfReporter) {
+        singleReportedData.nameOfUserWhoReported = singleUserData.username;
+      }
+    }
+
     if (singleReportedData.type === 'product') {
       for (let i = 0; i < dataOfReportedProduct.length; i++) {
         const singleProductData = dataOfReportedProduct[i];
+
         if (singleProductData.id === singleReportedData.idOfReportedParty) {
           singleReportedData.productName = singleProductData.name;
           singleReportedData.productDescription = singleProductData.description;
           singleReportedData.mediaUrls = [];
           singleReportedData.mediaUrls.push(singleProductData.productImageUrl);
           const moreMediaOfProduct = singleProductData.moreImagesUrl;
+          singleReportedData.doesExists = true;
 
           for (let i = 0; i < moreMediaOfProduct.length; i++) {
             const singleProductMedia = moreMediaOfProduct[i];
@@ -70,8 +88,20 @@ export const getReportDataController = myControllerHandler(async (req, res) => {
           singleReportedData.reviewText = singleReviewData.reviewText;
           singleReportedData.rating = singleReviewData.rating;
           singleReportedData.mediaUrls = singleReviewData.media;
+          singleReportedData.doesExists = true;
         }
       }
+    }
+  }
+
+  // filter out reports that does not exists
+  const refinedReportData2 = [];
+
+  for (let i = 0; i < refinedReportData.length; i++) {
+    const singleReportData: any = refinedReportData[i];
+    const doesExists = singleReportData.doesExists;
+    if (doesExists) {
+      refinedReportData2.push(singleReportData);
     }
   }
 
@@ -80,8 +110,8 @@ export const getReportDataController = myControllerHandler(async (req, res) => {
     reportedProducts: [],
   };
 
-  for (let i = 0; i < refinedReportData.length; i++) {
-    const singleReportData = refinedReportData[i];
+  for (let i = 0; i < refinedReportData2.length; i++) {
+    const singleReportData = refinedReportData2[i];
     if (singleReportData.type === 'product') {
       dataToSend.reportedProducts.push(singleReportData);
     } else if (singleReportData.type === 'review') {

@@ -29,6 +29,7 @@ export const acceptOrRejectReportController = myControllerHandler(
           throw new Error('Already Deleted');
         }
         await reviewData.deleteOne();
+        await reportData.deleteOne();
       } else if (reportData.type === 'product') {
         const productId = reportData.idOfReportedParty;
         const productData = await myProductModel.findOne({ id: productId });
@@ -36,6 +37,7 @@ export const acceptOrRejectReportController = myControllerHandler(
           throw new Error('Already Deleted');
         }
         await productData.deleteOne();
+        await reportData.deleteOne();
       }
     } else if (action === 'reject') {
       await reportData.deleteOne();
