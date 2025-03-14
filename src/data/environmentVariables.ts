@@ -8,7 +8,7 @@ export const jwtSecretKey = 'weather_consumer_report_tag_hash';
 export const adminChangingPasswordJwtSecretKey =
   'weather_consumer_report_admin_changing_password_jwt_key';
 export const frontendAddress = 'http://localhost:3000';
-export const myPort = 5000;
+export const myPort = 5173;
 export const stripePublishableKey =
   'pk_test_51Qk1iMFxqeIeIgIv4jauq9SUOcKvo995GZSoOmQL0lKi5dDTlF7eeBvNSCuQR3XOUcsQ8DnEq9ZxiV4z4mKCwfZ600p5lxsKQd';
 export const stripeSecretKey =
