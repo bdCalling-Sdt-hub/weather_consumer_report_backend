@@ -1,35 +1,42 @@
 import nodemailer from 'nodemailer';
 
 // Create a transporter
-// export const nodemailerTransporter = nodemailer.createTransport({
-//   service: 'gmail', // or any other service
-//   auth: {
-//     user: 'apurboroy7077@gmail.com',
-//     pass: 'zijolyhlxxjydndu',
-//   },
-// });
 export const nodemailerTransporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
-  port: 465,
-  secure: true, // false for 587, true for 465
+  port: 587,
+  secure: false, // false for 587, true for 465
   auth: {
     user: 'sh543132@gmail.com', // Replace with your email
     pass: 'eqbf gbbl cgmk xwsw', // Replace with your password
   },
 });
 
-// Sending an email
-// const mailOptions = {
-//   from: "port.denison.customer.care@gmail.com",
-//   to: "apurboroy7077@gmail.com",
-//   subject: "Test Email",
-//   text: "This is a test email sent using nodemailer!",
-// };
+// Verify the connection
+nodemailerTransporter
+  .verify()
+  .then(() => {
+    console.log('📧  Connected to email server ar7');
+  })
+  .catch(error => {
+    console.error('Unable to connect to email server ar7:', error);
+  });
 
-// nodemailerTransporter.sendMail(mailOptions, (error, info) => {
-//   if (error) {
-//     console.error("Error:", error);
-//   } else {
-//     console.log("Email sent:", info.response);
-//   }
-// });
+// Example of sending an email
+const sendEmail = async () => {
+  const mailOptions = {
+    from: 'sh543132@gmail.com', // Replace with your email
+    to: 'apurboroy7077@gmail.com', // Recipient email
+    subject: 'Test Email',
+    text: 'This is a test email sent using Nodemailer!',
+  };
+
+  try {
+    const info = await nodemailerTransporter.sendMail(mailOptions);
+    console.log('Email sent:', info.response);
+  } catch (error) {
+    console.error('Error sending email:', error);
+  }
+};
+
+// Call the send email function
+sendEmail();
