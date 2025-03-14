@@ -30,10 +30,10 @@ async function main() {
     assignTechnicianBasedOnAdminMaxPrice();
 
     // Start the server
-    server = app.listen(myPort, config.backendIp as string, () => {
+    server = app.listen(myPort, () => {
       logger.info(
         colors.yellow(
-          `♻️  Application is running at http://${config.backendIp}:${myPort}/`
+          `♻️  Application is running at http://localhost:${myPort}/`
         )
       );
     });

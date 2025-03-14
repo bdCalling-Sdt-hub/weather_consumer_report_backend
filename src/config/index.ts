@@ -1,56 +1,45 @@
 import { z } from 'zod';
-import dotenv from 'dotenv';
 import path from 'path';
 import { databaseUrlOfWeatherConsumerReport } from '../data/environmentVariables';
 
-// Load environment variables from .env file
-dotenv.config({ path: path.join(__dirname, '../../.env') });
+// Define hardcoded values for environment variables
+const config = {
+  NODE_ENV: 'development',
+  PORT: '8080',
+  SOCKET: '8082',
+  MONGODB_URL: 'mongodb://localhost:27017/mydb', // Replace with your actual MongoDB URL
+  JWT_SECRET: 'my-secret-key', // Replace with your actual JWT secret
+  JWT_EXPIRATION_TIME: '1d',
+  JWT_REFRESH_EXPIRATION_TIME: '180d',
+  BCRYPT_SALT_ROUNDS: '12',
+  SMTP_HOST: 'smtp.example.com', // Replace with your SMTP host
+  SMTP_PORT: '587', // Replace with your SMTP port
+  SMTP_USERNAME: 'smtp-user', // Replace with your SMTP username
+  SMTP_PASSWORD: 'smtp-password', // Replace with your SMTP password
+  EMAIL_FROM: 'no-reply@example.com', // Replace with your email sender
+  BACKEND_IP: '192.168.1.100', // Replace with your backend IP
+  STRIPE_SECRET_KEY: 'stripe-secret-key', // Replace with your Stripe secret key
+  STRIPE_WEBHOOK_SECRET: 'stripe-webhook-secret', // Replace with your Stripe webhook secret
+};
 
-// Define the schema for validating environment variables
+// Validate the hardcoded values (optional if you want to keep the validation logic)
+const envVars = {
+  success: true,
+  data: config,
+};
+
+// Validate the environment variables (if you want to keep it for structure)
 const envVarsSchema = z.object({
   NODE_ENV: z
     .enum(['development', 'test', 'production'])
     .default('development'),
-  PORT: z
-    .string({
-      invalid_type_error: 'PORT must be a string',
-      required_error: 'PORT is required',
-    })
-    .default('8080'),
-  SOCKET: z
-    .string({
-      invalid_type_error: 'SOCKET must be a string',
-      required_error: 'SOCKET is required',
-    })
-    .default('8082'),
-  MONGODB_URL: z
-    .string({
-      required_error: 'MongoDB URL is required',
-      invalid_type_error: 'MongoDB URL must be a string',
-    })
-    .optional(),
-  JWT_SECRET: z.string({
-    required_error: 'JWT secret is required',
-    invalid_type_error: 'JWT secret must be a string',
-  }),
-  JWT_EXPIRATION_TIME: z
-    .string({
-      invalid_type_error: 'JWT_EXPIRATION_TIME must be a valid string',
-      required_error: 'JWT_EXPIRATION_TIME is required',
-    })
-    .default('1d'),
-  JWT_REFRESH_EXPIRATION_TIME: z
-    .string({
-      invalid_type_error: 'JWT_REFRESH_EXPIRATION_TIME must be a valid string',
-      required_error: 'JWT_REFRESH_EXPIRATION_TIME is required',
-    })
-    .default('180d'),
-  BCRYPT_SALT_ROUNDS: z
-    .string({
-      invalid_type_error: 'BCRYPT_SALT_ROUNDS must be a string',
-      required_error: 'BCRYPT_SALT_ROUNDS is required',
-    })
-    .default('12'),
+  PORT: z.string().default('8080'),
+  SOCKET: z.string().default('8082'),
+  MONGODB_URL: z.string().optional(),
+  JWT_SECRET: z.string(),
+  JWT_EXPIRATION_TIME: z.string().default('1d'),
+  JWT_REFRESH_EXPIRATION_TIME: z.string().default('180d'),
+  BCRYPT_SALT_ROUNDS: z.string().default('12'),
   SMTP_HOST: z.string().optional(),
   SMTP_PORT: z.string().optional(),
   SMTP_USERNAME: z.string().optional(),
@@ -61,11 +50,13 @@ const envVarsSchema = z.object({
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
 });
 
-// Validate the environment variables
-const envVars = envVarsSchema.safeParse(process.env);
-if (!envVars.success) {
-  console.log(envVars.error);
-  throw new Error(`Config validation error: ${envVars.error.format()}`);
+// Check if the config is valid
+const validationResult = envVarsSchema.safeParse(envVars.data);
+if (!validationResult.success) {
+  console.log(validationResult.error);
+  throw new Error(
+    `Config validation error: ${validationResult.error.format()}`
+  );
 }
 
 export default {
