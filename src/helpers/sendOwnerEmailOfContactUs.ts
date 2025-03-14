@@ -1,18 +1,17 @@
 import { nodemailerTransporter } from '../config/nodemailer/nodemailer.config';
 
-export const sendContactUsEmail = (
+export const sendContactUsEmail = async (
   userName: string,
   userEmail: string,
   message: string,
   ownerEmail: string
 ) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const contactUsEmail = {
-        to: ownerEmail, // Owner's email address
-        from: userEmail, // Sender's email address (user)
-        subject: `New Contact Us Message from ${userName}`,
-        html: `
+  try {
+    const contactUsEmail = {
+      to: ownerEmail, // Owner's email address
+      from: userEmail, // Sender's email address (user)
+      subject: `New Contact Us Message from ${userName}`,
+      html: `
         <html>
         <head>
           <style>
@@ -76,21 +75,15 @@ export const sendContactUsEmail = (
           </div>
         </body>
       </html>
-        `,
-      };
+      `,
+    };
 
-      nodemailerTransporter.sendMail(contactUsEmail, (error, info) => {
-        if (error) {
-          console.error('Error:', error);
-          reject(error);
-        } else {
-          console.log('Email sent:', info.response);
-          resolve('Email Sent');
-        }
-      });
-    } catch (error) {
-      console.error('Error:', error);
-      reject(error);
-    }
-  });
+    // Send the email using async/await
+    const info = await nodemailerTransporter.sendMail(contactUsEmail);
+    console.log('Contact Us Email sent:', info.response);
+    return 'Email Sent';
+  } catch (error) {
+    console.error('Error sending Contact Us email:', error);
+    throw new Error('Failed to send Contact Us email');
+  }
 };

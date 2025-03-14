@@ -1,17 +1,16 @@
 import { nodemailerTransporter } from '../config/nodemailer/nodemailer.config';
 
-export const sendPasswordResetOtpViaEmail = (
+export const sendPasswordResetOtpViaEmail = async (
   nameOfUser: string,
   emailOfUser: string,
   otp: string
 ) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const myEmail = {
-        to: emailOfUser,
-        from: 'your-email@example.com', // Replace with your email address
-        subject: `Password Reset OTP`,
-        html: `
+  try {
+    const myEmail = {
+      to: emailOfUser,
+      from: 'your-email@example.com', // Replace with your email address
+      subject: `Password Reset OTP`,
+      html: `
         <html>
         <head>
           <style>
@@ -72,22 +71,15 @@ export const sendPasswordResetOtpViaEmail = (
           </div>
         </body>
       </html>
-        `,
-      };
+      `,
+    };
 
-      // Send the email using the transporter
-      nodemailerTransporter.sendMail(myEmail, (error, info) => {
-        if (error) {
-          console.error('Error:', error);
-          reject(error);
-        } else {
-          console.log('Email sent:', info.response);
-          resolve('Email Sent');
-        }
-      });
-    } catch (error) {
-      console.error(error);
-      reject(error);
-    }
-  });
+    // Send the email using the transporter and await the result
+    const info = await nodemailerTransporter.sendMail(myEmail);
+    console.log('Password Reset OTP email sent:', info.response);
+    return 'Email Sent';
+  } catch (error) {
+    console.error('Error sending Password Reset OTP email:', error);
+    throw new Error('Failed to send Password Reset OTP email');
+  }
 };
