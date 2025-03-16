@@ -33,7 +33,7 @@ async function main() {
     server = app.listen(myPort, () => {
       logger.info(
         colors.yellow(
-          `♻️  Application is running at http://localhost:${myPort}/`
+          `♻️  Application is running at http://170.64.139.81:${myPort}/`
         )
       );
     });

@@ -2,12 +2,13 @@ import nodemailer from 'nodemailer';
 
 // Create a transporter
 export const nodemailerTransporter = nodemailer.createTransport({
-  host: 'mail.dongaraaccommodation.com.au', // SMTP server
-  port: 465, // Use the same port as the PHP script (465 for implicit TLS)
-  secure: true, // Use TLS encryption (this matches with SMTPS in PHP)
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false,
+  service: 'gmail', // false for 587, true for 465
   auth: {
-    user: 'support@dongaraaccommodation.com.au', // SMTP username
-    pass: 'chicken-biriyani-120-tk-$', // SMTP password
+    user: 'sh543132@gmail.com', // Replace with your email
+    pass: 'eqbf gbbl cgmk xwsw', // Replace with your password
   },
 });
 
@@ -24,8 +25,8 @@ nodemailerTransporter
 // Example of sending an email
 const sendEmail = async () => {
   const mailOptions = {
-    from: 'support@dongaraaccommodation.com.au', // Sender email
-    to: 'apurbooffice707@gmail.com', // Recipient email
+    from: 'sh543132@gmail.com', // Replace with your email
+    to: 'apurboroy7077@gmail.com', // Recipient email
     subject: 'Test Email',
     text: 'This is a test email sent using Nodemailer!',
   };

@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 const onlineDatabase1 = `mongodb+srv://ar7:12345@cluster0.1g8wuka.mongodb.net/weather_consumer_report?retryWrites=true&w=majority`;
-const onlineDatabase2 = 'mongodb://localhost:27017';
+const onlineDatabase2 = 'mongodb://localhost:27017/Weather';
 
 export const databaseUrlOfWeatherConsumerReport = onlineDatabase2;
 export const jwtSecretKey = 'weather_consumer_report_tag_hash';
