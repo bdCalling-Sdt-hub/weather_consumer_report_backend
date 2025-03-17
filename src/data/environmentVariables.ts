@@ -1,3 +1,7 @@
+type environmentModeType = 'DEVELOPMENT' | 'PRODUCTION';
+
+let environmentMode = 'PRODUCTION' as environmentModeType;
+
 import dotenv from 'dotenv';
 dotenv.config();
 const onlineDatabase1 = `mongodb+srv://ar7:12345@cluster0.1g8wuka.mongodb.net/weather_consumer_report?retryWrites=true&w=majority`;
@@ -7,7 +11,10 @@ export const databaseUrlOfWeatherConsumerReport = onlineDatabase2;
 export const jwtSecretKey = 'weather_consumer_report_tag_hash';
 export const adminChangingPasswordJwtSecretKey =
   'weather_consumer_report_admin_changing_password_jwt_key';
-export const frontendAddress = 'http://localhost:3000';
+export const frontendAddress =
+  environmentMode === 'DEVELOPMENT'
+    ? 'http://localhost:3000'
+    : 'https://accountabilityworld.org';
 export const myPort = 5000;
 export const stripePublishableKey =
   'pk_test_51Qk1iMFxqeIeIgIv4jauq9SUOcKvo995GZSoOmQL0lKi5dDTlF7eeBvNSCuQR3XOUcsQ8DnEq9ZxiV4z4mKCwfZ600p5lxsKQd';

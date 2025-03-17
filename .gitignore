@@ -2,7 +2,7 @@ node_modules
 dist
 /uploads
 /winston
-# .env
+.env
 public\images
 
 /test
