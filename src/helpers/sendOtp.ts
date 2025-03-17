@@ -1,16 +1,17 @@
 import { nodemailerTransporter } from '../config/nodemailer/nodemailer.config';
 
-export const sendOtpViaEmail = async (
+export const sendOtpViaEmail = (
   nameOfUser: string,
   emailOfUser: string,
   otp: string
 ) => {
-  try {
-    const myEmail = {
-      to: emailOfUser,
-      from: 'support@dongaraaccommodation.com.au', // Sender email
-      subject: `Your OTP for Verification`,
-      html: `
+  return new Promise(async (resolve, reject) => {
+    try {
+      const myEmail = {
+        to: emailOfUser,
+        from: 'apurboroy7077@gmail.com', // Replace with your email address
+        subject: `Your OTP for Verification`,
+        html: `
         <html>
         <head>
           <style>
@@ -72,14 +73,20 @@ export const sendOtpViaEmail = async (
         </body>
       </html>
         `,
-    };
+      };
 
-    // Sending the email
-    const info = await nodemailerTransporter.sendMail(myEmail);
-    console.log('OTP email sent:', info.response);
-    return 'OTP email sent';
-  } catch (error) {
-    console.error('Error sending OTP email:', error);
-    throw new Error('Failed to send OTP email');
-  }
+      nodemailerTransporter.sendMail(myEmail, (error, info) => {
+        if (error) {
+          console.error('Error:', error);
+          reject(error);
+        } else {
+          console.log('Email sent:', info.response);
+          resolve('Email Sent');
+        }
+      });
+    } catch (error) {
+      console.log(error);
+      reject(error);
+    }
+  });
 };

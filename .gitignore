@@ -4,3 +4,5 @@ dist
 /winston
 # .env
 public\images
+
+/test
